@@ -19,3 +19,8 @@
 
 # Go workspace file
 go.work
+
+# Generated Templ files
+*_templ.go
+
+.DS_Store
