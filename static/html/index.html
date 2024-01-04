@@ -14,6 +14,15 @@
   <script src="/js/codes.js"></script>
   <script src="/js/game.js"></script>
   <script>
+        function getDepartementName(code) {
+            for (const key in game.departementCodes) {
+                if (game.departementCodes[key].code === code) {
+                    selectedDepartement = game.departementCodes[key].name;
+                }
+            }
+            return selectedDepartement;
+        }
+
         const game = new Game(stateMap);
         const map = new jsVectorMap({
             selector: "#map",
@@ -25,11 +34,17 @@
             panOnDrag: false,
             backgroundColor: "#fff",
             onRegionClick: function (event, code) {
-                for (const key in this.departementCodes) {
-                    if (this.departementCodes[key].code === code) {
-                        console.log(this.departementCodes[key].name);
-                        event.srcElement.style.fill = "green";
-                    }
+                if (code === game.currentDepartement) {
+                    event.srcElement.style.fill = "green";
+                    console.log("Correct department, you clicked on : ", getDepartementName(code));
+                    game.getNextDepartement();
+                } else {
+                    event.srcElement.style.fill = "red";
+                    console.log("Wrong department, you clicked on : ", getDepartementName(code));
+                }
+                if (game.departementStack.length === 0) {
+                    game.stop();
+                    alarm("You won!");
                 }
             },
         });

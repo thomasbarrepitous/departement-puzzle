@@ -2,36 +2,14 @@ class GameMap {
   constructor(stateMap, map) {
     this.map = map;
     this.departementCodes = stateMap;
-    this.display();
-  }
-
-  display() {
-    // const map = new jsVectorMap({
-    //   selector: "#map",
-    //   map: "france_departments",
-    //   showTooltip: false,
-    //   draggable: false,
-    //   zoomOnScroll: false,
-    //   zoomButtons: false,
-    //   panOnDrag: false,
-    //   backgroundColor: "#fff",
-    //   onRegionClick: function (event, code) {
-    //     for (const key in this.departementCodes) {
-    //       if (this.departementCodes[key].code === code) {
-    //         console.log(this.departementCodes[key].name);
-    //         event.srcElement.style.fill = "green";
-    //       }
-    //     }
-    //   },
-    // });
-    // this.map = map;
   }
 }
+
 class Game {
   constructor(stateMap) {
-    this.departmentStack = [];
+    this.departementStack = [];
     this.departementCodes = stateMap;
-    this.initializeStack();
+    this.currentDepartement = null;
     this.gameMap = new GameMap(stateMap);
     this.timer = new Timer();
   }
@@ -44,13 +22,13 @@ class Game {
 
   initializeMap() {
     // Reset the map
-    this.gameMap.display();
+    // this.gameMap.display();
     return this;
   }
 
   initializeStack() {
-    // Randomize the department map into a stack
-    this.departmentStack = this.shuffle(Object.keys(this.departementCodes));
+    // Randomize the Departement map into a stack
+    this.departementStack = this.shuffle(Object.keys(this.departementCodes));
     return this;
   }
 
@@ -75,23 +53,18 @@ class Game {
     return array;
   }
 
-  getRandomDepartment() {
-    if (this.departmentStack.length === 0) {
-      // If the stack is empty, refill it with the original map
-      console.log("Refilling stack");
-      this.initializeStack();
-    }
-
-    // Pop a department from the stack
-    const randomDepartment = this.departmentStack.pop();
-    return randomDepartment;
+  getNextDepartement() {
+    // Pop a Departement from the stack
+    this.currentDepartement = this.departementStack.pop();
+    console.log(this.currentDepartement);
+    return this.currentDepartement;
   }
 
   start() {
-    // Get a random department
-    const randomDepartment = this.getRandomDepartment();
-    console.log(randomDepartment);
+    // Get a random Departement
+    this.initializeStack();
     this.timer.start();
+    this.getNextDepartement();
   }
 
   stop() {
