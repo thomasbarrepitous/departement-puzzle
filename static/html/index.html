@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
+  <title>Map</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+  <script src="/js/map.js"></script>
+  <script src="/js/codes.js"></script>
+  <script src="/js/game.js"></script>
+  <script>
+        const game = new Game(stateMap);
+        const map = new jsVectorMap({
+            selector: "#map",
+            map: "france_departments",
+            showTooltip: false,
+            draggable: false,
+            zoomOnScroll: false,
+            zoomButtons: false,
+            panOnDrag: false,
+            backgroundColor: "#fff",
+            onRegionClick: function (event, code) {
+                for (const key in this.departementCodes) {
+                    if (this.departementCodes[key].code === code) {
+                        console.log(this.departementCodes[key].name);
+                        event.srcElement.style.fill = "green";
+                    }
+                }
+            },
+        });
+        game.map = map;
+  </script>
+  <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #map {
+            width: 70%;
+            height: 70%;
+            background-color: #ddd;
+        }
+  </style>
+</head>
+<body hx-target="#body" hx-swap="outerHTML">
+  <div id="timerDisplay" hx-target="#timerDisplay" hx-swap="outerHTML">
+    Timer: 00:00
+  </div>
+  <div id="departmentName" hx-target="#departmentName" hx-swap="outerHTML">
+    Department:
+  </div>
+  <div id="map" hx-target="#map" hx-swap="outerHTML"></div>
+  <div class="navbar" hx-target="#navbar" hx-swap="outerHTML">
+    <button id="toggleGameButton" class="button" onclick="toggleButton(this, game)">Start</button>
+  </div>
+</body>
+</html>
