@@ -14,14 +14,6 @@
   <script src="/js/codes.js"></script>
   <script src="/js/game.js"></script>
   <script>
-        function getDepartementName(code) {
-            for (const key in game.departementCodes) {
-                if (game.departementCodes[key].code === code) {
-                    selectedDepartement = game.departementCodes[key].name;
-                }
-            }
-            return selectedDepartement;
-        }
 
         const game = new Game(stateMap);
         const map = new jsVectorMap({
@@ -34,13 +26,16 @@
             panOnDrag: false,
             backgroundColor: "#fff",
             onRegionClick: function (event, code) {
-                if (code === game.currentDepartement) {
+                if (game.isRunning === false) {
+                    return;
+                }
+                if (code === "FR-" + game.currentDepartement) {
                     event.srcElement.style.fill = "green";
-                    console.log("Correct department, you clicked on : ", getDepartementName(code));
+                    console.log("Correct department, you clicked on : ", getDepartementName(game, code));
                     game.getNextDepartement();
                 } else {
                     event.srcElement.style.fill = "red";
-                    console.log("Wrong department, you clicked on : ", getDepartementName(code));
+                    console.log("Wrong department, you clicked on : ", getDepartementName(game, code));
                 }
                 if (game.departementStack.length === 0) {
                     game.stop();
@@ -70,7 +65,7 @@
   <div id="timerDisplay" hx-target="#timerDisplay" hx-swap="outerHTML">
     Timer: 00:00
   </div>
-  <div id="departmentName" hx-target="#departmentName" hx-swap="outerHTML">
+  <div id="departementDisplay" hx-target="#departementDisplay" hx-swap="outerHTML">
     Department:
   </div>
   <div id="map" hx-target="#map" hx-swap="outerHTML"></div>
