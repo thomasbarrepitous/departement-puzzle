@@ -137,11 +137,8 @@ function stopClick(button, game) {
 
 function getDepartementName(game, code) {
   let selectedDepartement;
-  if (code.slice(0, 3) != "FR-") {
-    code = "FR-" + code;
-  }
   for (const key in game.departementCodes) {
-    if (game.departementCodes[key].code === code) {
+    if (key === code) {
       selectedDepartement = game.departementCodes[key].name;
       break;
     }
