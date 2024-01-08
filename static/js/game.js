@@ -1,35 +1,39 @@
-class GameMap {
-  constructor(stateMap, map) {
-    this.map = map;
-    this.departementCodes = stateMap;
+class GameObserver {
+  constructor(codeToNameMap) {
+    this.game = new Game(codeToNameMap);
+    this.timer = new Timer();
+  }
+
+  start() {
+    this.timer.start();
+    this.game.start();
+  }
+
+  stop() {
+    this.timer.stop();
+    this.game.stop();
+  }
+
+  next() {
+    this.game.getNextDepartement();
   }
 }
 
 class Game {
-  constructor(stateMap) {
+  constructor(codeToNameMap) {
     this.departementStack = [];
-    this.departementCodes = stateMap;
+    this.codeToNameMap = codeToNameMap;
     this.currentDepartement = 0;
-    this.gameMap = new GameMap(stateMap);
-    this.timer = new Timer();
     this.isRunning = false;
   }
 
   reset() {
-    this.initializeStack();
-    this.initializeMap();
-    this.timer.stop();
+    this.initStack();
   }
 
-  initializeMap() {
-    // Reset the map
-    // this.gameMap.display();
-    return this;
-  }
-
-  initializeStack() {
+  initStack() {
     // Randomize the Departement map into a stack
-    this.departementStack = this.shuffle(Object.keys(this.departementCodes));
+    this.departementStack = this.shuffle(Object.keys(this.codeToNameMap));
     return this;
   }
 
@@ -58,16 +62,15 @@ class Game {
     // Pop a Departement from the stack
     this.currentDepartement = this.departementStack.pop();
     document.getElementById("departementDisplay").innerHTML =
-      "Departement: " + getDepartementName(this, this.currentDepartement);
+      "Departement: " + this.codeToNameMap[this.currentDepartement].name;
     return this.currentDepartement;
   }
 
   start() {
     // Get a random Departement
-    this.initializeStack();
-    this.timer.start();
-    this.isRunning = true;
+    this.initStack();
     this.getNextDepartement();
+    this.isRunning = true;
   }
 
   stop() {
@@ -121,36 +124,35 @@ class Timer {
   }
 }
 
-function startClick(button, game) {
+function startClick(button, gameObs) {
   button.innerHTML = "Stop";
   button.classList.remove("start");
   button.classList.add("stop");
-  game.start();
+  gameObs.start();
 }
 
-function stopClick(button, game) {
+function stopClick(button, gameObs) {
   button.innerHTML = "Start";
   button.classList.remove("stop");
   button.classList.add("start");
-  game.stop();
+  gameObs.stop();
 }
 
-function getDepartementName(game, code) {
+function getDepartementFromCode(map, code) {
   let selectedDepartement;
-  for (const key in game.departementCodes) {
-    if (key === code) {
-      selectedDepartement = game.departementCodes[key].name;
-      break;
+  Object.keys(map).forEach((key) => {
+    if (map[key].code === code) {
+      selectedDepartement = map[key];
     }
-  }
+  });
   return selectedDepartement;
 }
 
 const button = document.getElementById("toggleGameButton");
-function toggleButton(button, game) {
+function toggleButton(button, gameObs) {
   if (button.innerHTML === "Start") {
-    startClick(button, game);
+    startClick(button, gameObs);
   } else {
-    stopClick(button, game);
+    stopClick(button, gameObs);
   }
 }

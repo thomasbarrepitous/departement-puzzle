@@ -14,8 +14,7 @@
   <script src="/js/codes.js"></script>
   <script src="/js/game.js"></script>
   <script>
-
-        const game = new Game(stateMap);
+        var gameObs = new GameObserver(stateMap);
         const map = new jsVectorMap({
             selector: "#map",
             map: "france_departments",
@@ -26,24 +25,25 @@
             panOnDrag: false,
             backgroundColor: "#fff",
             onRegionClick: function (event, code) {
-                if (game.isRunning === false) {
+                const map = gameObs.game.codeToNameMap;
+                const clickedDep = getDepartementFromCode(map, code);
+                if (gameObs.game.isRunning === false) {
                     return;
                 }
-                if (code === "FR-" + game.currentDepartement) {
+                if (code === map[gameObs.game.currentDepartement].code) {
                     event.srcElement.style.fill = "green";
-                    console.log("Correct department, you clicked on : ", getDepartementName(game, code));
-                    game.getNextDepartement();
+                    console.log("Correct department, you clicked on : " + clickedDep.name);
+                    gameObs.next();
                 } else {
                     event.srcElement.style.fill = "red";
-                    console.log("Wrong department, you clicked on : ", getDepartementName(game, code));
+                    console.log("Wrong department, you clicked on : " + clickedDep.name);
                 }
-                if (game.departementStack.length === 0) {
-                    game.stop();
-                    alarm("You won!");
+                if (gameObs.game.departementStack.length === 0) {
+                    gameObs.stop();
+                    console.log("You won!");
                 }
             },
         });
-        game.map = map;
   </script>
   <style>
         body {
@@ -70,7 +70,7 @@
   </div>
   <div id="map" hx-target="#map" hx-swap="outerHTML"></div>
   <div class="navbar" hx-target="#navbar" hx-swap="outerHTML">
-    <button id="toggleGameButton" class="button" onclick="toggleButton(this, game)">Start</button>
+    <button id="toggleGameButton" class="button" onclick="toggleButton(this, gameObs)">Start</button>
   </div>
 </body>
 </html>
