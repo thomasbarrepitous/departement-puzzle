@@ -5,8 +5,11 @@ class GameObserver {
   }
 
   start() {
+    this.reset();
     this.timer.start();
     this.game.start();
+    document.getElementById("guessDisplay").innerHTML =
+      this.game.codeToNameMap[this.game.currentDepartement].name;
   }
 
   stop() {
@@ -14,8 +17,59 @@ class GameObserver {
     this.game.stop();
   }
 
+  reset() {
+    this.game.reset();
+    this.timer.reset();
+    document.getElementById("guessDisplay").innerHTML = "?";
+  }
+
   next() {
+    if (this.game.departementStack.length === 0) {
+      this.end();
+      return;
+    }
     this.game.getNextDepartement();
+    document.getElementById("guessDisplay").innerHTML =
+      this.game.codeToNameMap[this.game.currentDepartement].name;
+  }
+
+  skip() {
+    const startButton = document.getElementById("startButton");
+    if (startButton.classList.contains("hidden") ){
+        this.game.skipDepartement();
+        this.next();
+    }
+  }
+
+  // Only called when the game is won
+  end() {
+    this.stop();
+    toggleClick();
+    displayWinMessage();
+  }
+
+  guess(event, code) {
+    const clickedDep = getDepartementFromCode(this.game.codeToNameMap, code);
+    if (this.game.isRunning === false) {
+      return;
+    }
+    if (this.game.isGuessCorrect(code)) {
+      event.srcElement.style.fill = "green";
+      // console.log("Correct department, you clicked on : " + clickedDep.name);
+      this.next();
+    } else {
+      if (event.srcElement.style.fill !== "green") {
+        event.srcElement.style.fill = "red";
+      }
+      // console.log("Wrong department, you clicked on : " + clickedDep.name);
+    }
+  }
+
+  playAgain() {
+    this.reset();
+    removeWinMessage();
+    toggleClick();
+    this.start();
   }
 }
 
@@ -25,9 +79,33 @@ class Game {
     this.codeToNameMap = codeToNameMap;
     this.currentDepartement = 0;
     this.isRunning = false;
+    this.displayedMap = null;
+    this.init();
+  }
+
+  isGuessCorrect(code) {
+    // Is clicked dep same as current dep ?
+    return code === this.codeToNameMap[this.currentDepartement].code;
   }
 
   reset() {
+    document.getElementById("map").innerHTML = "";
+  }
+
+  init() {
+    this.displayedMap = new jsVectorMap({
+      selector: "#map",
+      map: "france_departments",
+      showTooltip: false,
+      draggable: true,
+      zoomOnScroll: true,
+      zoomButtons: false,
+      panOnDrag: true,
+      backgroundColor: "#1111a",
+      onRegionClick: function (event, code) {
+        gameObs.guess(event, code);
+      },
+    });
     this.initStack();
   }
 
@@ -59,22 +137,27 @@ class Game {
   }
 
   getNextDepartement() {
+    if (this.departementStack.length === 0) {
+      this.super().end();
+      return;
+    }
     // Pop a Departement from the stack
     this.currentDepartement = this.departementStack.pop();
-    document.getElementById("departementDisplay").innerHTML =
-      "Departement: " + this.codeToNameMap[this.currentDepartement].name;
     return this.currentDepartement;
+  }
+
+  skipDepartement() {
+    this.departementStack.unshift(this.currentDepartement);
   }
 
   start() {
     // Get a random Departement
-    this.initStack();
-    this.getNextDepartement();
+    this.init();
     this.isRunning = true;
+    this.getNextDepartement();
   }
 
   stop() {
-    this.reset();
     this.isRunning = false;
   }
 }
@@ -104,8 +187,6 @@ class Timer {
 
   stop() {
     clearInterval(this.timer);
-    this.reset();
-    console.log("Timer stopped");
   }
 
   updateTimerDisplay(time) {
@@ -119,23 +200,31 @@ class Timer {
     if (minutes < 10) {
       minutesStr = "0" + minutesStr;
     }
-    const timerDisplay = `Timer: ${minutesStr}:${secondsStr}`;
+    const timerDisplay = `${minutesStr}:${secondsStr}`;
     document.getElementById("timerDisplay").innerHTML = timerDisplay;
   }
 }
 
 function startClick(button, gameObs) {
-  button.innerHTML = "Stop";
-  button.classList.remove("start");
-  button.classList.add("stop");
+  toggleClick();
   gameObs.start();
 }
 
 function stopClick(button, gameObs) {
-  button.innerHTML = "Start";
-  button.classList.remove("stop");
-  button.classList.add("start");
+  toggleClick();
   gameObs.stop();
+}
+
+function toggleClick() {
+  startButton = document.getElementById("startButton");
+  stopButton = document.getElementById("stopButton");
+  if (startButton.classList.contains("hidden")) {
+    stopButton.classList.add("hidden");
+    startButton.classList.remove("hidden");
+  } else {
+    stopButton.classList.remove("hidden");
+    startButton.classList.add("hidden");
+  }
 }
 
 function getDepartementFromCode(map, code) {
@@ -148,11 +237,30 @@ function getDepartementFromCode(map, code) {
   return selectedDepartement;
 }
 
-const button = document.getElementById("toggleGameButton");
+function displayWinMessage() {
+  const winMessage = document.getElementById("winMessage");
+  const timerWinMessage = document.getElementById("timerWinMessage");
+  winMessage.style.display = "block";
+  timerWinMessage.innerHTML =
+    document.getElementById("timerDisplay").innerHTML + "s !";
+  confetti({
+    particleCount: 750,
+    spread: 150,
+    origin: { y: 0.6 },
+  });
+}
+
+function removeWinMessage() {
+  const winMessage = document.getElementById("winMessage");
+  // Hide the message and stop animation
+  winMessage.style.display = "none";
+}
+
 function toggleButton(button, gameObs) {
   if (button.innerHTML === "Start") {
     startClick(button, gameObs);
-  } else {
+  }
+  if (button.innerHTML === "Stop") {
     stopClick(button, gameObs);
   }
 }
