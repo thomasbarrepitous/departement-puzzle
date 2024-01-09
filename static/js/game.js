@@ -35,9 +35,9 @@ class GameObserver {
 
   skip() {
     const startButton = document.getElementById("startButton");
-    if (startButton.classList.contains("hidden") ){
-        this.game.skipDepartement();
-        this.next();
+    if (startButton.classList.contains("hidden")) {
+      this.game.skipDepartement();
+      this.next();
     }
   }
 
