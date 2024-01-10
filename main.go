@@ -1,18 +1,25 @@
 package main
 
 import (
-	"fmt"
+	"departement/limit"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fs)
+	r := mux.NewRouter()
+	r.HandleFunc("/api/ranking", rankingHandler)
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 
-	fmt.Println("Listening on :3000")
-	err := http.ListenAndServe(":3000", nil)
+	log.Print("Listening on :3000")
+	err := http.ListenAndServe(":3000", limit.Limit(r))
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func rankingHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello World"))
 }
