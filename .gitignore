@@ -24,3 +24,4 @@ go.work
 *_templ.go
 
 .DS_Store
+.env
