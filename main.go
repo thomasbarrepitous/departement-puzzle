@@ -1,42 +1,35 @@
 package main
 
 import (
-	"database/sql"
+	"departement/db_config"
 	"departement/limit"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
 )
 
-func connectToDB() (*sql.DB, error) {
-	// Database connection string
-	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("POSTGRES_HOST"),
-		os.Getenv("POSTGRES_PORT"),
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_DB"),
-	)
+func getRanking(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "OK\n")
+}
 
-	// Open a connection to the database
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		return nil, err
-	}
+func postRanking(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "OK\n")
+}
 
-	return db, nil
+func getAPIHealth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "OK\n")
 }
 
 func main() {
 	// Initialize the database
-	db, err := connectToDB()
+	db, err := db_config.ConnectDB(*db_config.NewDBConfig())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,10 +45,13 @@ func main() {
 
 	// Create subrouter for our API routes
 	apiRouter := r.PathPrefix("/api").Subrouter()
-	apiRouter.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
-	})
-	apiRouter.HandleFunc("/ranking/{category}/{trois}/", rankingHandler)
+
+	// Health check
+	apiRouter.HandleFunc("/health", getAPIHealth).Methods("GET")
+
+	// Ranking
+	apiRouter.HandleFunc("/ranking/", getRanking).Methods("GET")
+	apiRouter.HandleFunc("/ranking/", postRanking).Methods("POST")
 
 	// Load our assets (css, js, images, etc.)
 	staticRoute := http.StripPrefix("/static/", http.FileServer(neuteredFileSystem{http.Dir("./static")}))
@@ -74,12 +70,6 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 	log.Fatal(srv.ListenAndServe())
-}
-
-func rankingHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Category: %v, %v\n", vars["category"], vars["trois"])
 }
 
 // neuteredFileSystem is a custom implementation of http.FileSystem
