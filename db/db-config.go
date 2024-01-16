@@ -1,6 +1,6 @@
-package db_config
+package db
 
-import "os"
+import "github.com/spf13/viper"
 
 type DBConfig struct {
 	host     string
@@ -8,15 +8,17 @@ type DBConfig struct {
 	username string
 	password string
 	database string
+	typeDB   string
 }
 
 func NewDBConfig() *DBConfig {
 	return &DBConfig{
-		host:     os.Getenv("POSTGRES_HOST"),
-		port:     os.Getenv("POSTGRES_PORT"),
-		username: os.Getenv("POSTGRES_USERNAME"),
-		password: os.Getenv("POSTGRES_PASSWORD"),
-		database: os.Getenv("POSTGRES_DATABASE"),
+		host:     viper.Get("DB_HOST").(string),
+		port:     viper.Get("DB_PORT").(int),
+		username: viper.Get("DB_USERNAME").(string),
+		password: viper.Get("DB_PASSWORD").(string),
+		database: viper.Get("DB_NAME").(string),
+		typeDB:   viper.Get("DB_TYPE").(string),
 	}
 }
 
@@ -38,4 +40,8 @@ func (c *DBConfig) GetPassword() string {
 
 func (c *DBConfig) GetDatabase() string {
 	return c.database
+}
+
+func (c *DBConfig) GetTypeDB() string {
+	return c.typeDB
 }

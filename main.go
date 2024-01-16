@@ -1,7 +1,7 @@
 package main
 
 import (
-	"departement/db_config"
+	"departement/db"
 	"departement/limit"
 	"fmt"
 	"log"
@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/spf13/viper"
 )
 
 func getRanking(w http.ResponseWriter, r *http.Request) {
@@ -28,8 +29,10 @@ func getAPIHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	viper.SetConfigFile(".env")
+
 	// Initialize the database
-	db, err := db_config.ConnectDB(*db_config.NewDBConfig())
+	db, err := db.ConnectDB(*db.NewDBConfig())
 	if err != nil {
 		log.Fatal(err)
 	}
