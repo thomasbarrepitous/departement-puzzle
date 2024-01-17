@@ -13,17 +13,27 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getRanking(w http.ResponseWriter, r *http.Request) {
+func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "OK\n")
 }
 
-func postRanking(w http.ResponseWriter, r *http.Request) {
+func createNewUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "OK\n")
 }
 
-func getAPIHealth(w http.ResponseWriter, r *http.Request) {
+func getAllRankings(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "OK\n")
+}
+
+func createNewRanking(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "OK\n")
+}
+
+func checkHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "OK\n")
 }
@@ -48,11 +58,15 @@ func main() {
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
 	// Health check
-	apiRouter.HandleFunc("/health", getAPIHealth).Methods("GET")
+	apiRouter.HandleFunc("/health", checkHealth).Methods("GET")
 
-	// Ranking
-	apiRouter.HandleFunc("/ranking/", getRanking).Methods("GET")
-	apiRouter.HandleFunc("/ranking/", postRanking).Methods("POST")
+	// Users
+	apiRouter.HandleFunc("/users", getAllUsers).Methods("GET")
+	apiRouter.HandleFunc("/users", createNewUser).Methods("POST")
+
+	// Rankings
+	apiRouter.HandleFunc("/rankings", getAllRankings).Methods("GET")
+	apiRouter.HandleFunc("/rankings", createNewRanking).Methods("POST")
 
 	// Load our assets (css, js, images, etc.)
 	staticRoute := http.StripPrefix("/static/", http.FileServer(neuteredFileSystem{http.Dir("./static")}))
