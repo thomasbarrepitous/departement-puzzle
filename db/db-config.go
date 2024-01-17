@@ -1,6 +1,8 @@
 package db
 
-import "github.com/spf13/viper"
+import (
+	"os"
+)
 
 type DBConfig struct {
 	host     string
@@ -13,12 +15,12 @@ type DBConfig struct {
 
 func NewDBConfig() *DBConfig {
 	return &DBConfig{
-		host:     viper.Get("DB_HOST").(string),
-		port:     viper.Get("DB_PORT").(int),
-		username: viper.Get("DB_USERNAME").(string),
-		password: viper.Get("DB_PASSWORD").(string),
-		database: viper.Get("DB_NAME").(string),
-		typeDB:   viper.Get("DB_TYPE").(string),
+		host:     os.Getenv("DB_HOST"),
+		port:     os.Getenv("DB_PORT"),
+		username: os.Getenv("DB_USER"),
+		password: os.Getenv("DB_PASSWORD"),
+		database: os.Getenv("DB_NAME"),
+		typeDB:   os.Getenv("DB_TYPE"),
 	}
 }
 

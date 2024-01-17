@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
 func getRanking(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,11 @@ func getAPIHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	viper.SetConfigFile(".env")
+	// Initialize env variables
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	// Initialize the database
 	db, err := db.ConnectDB(*db.NewDBConfig())
@@ -37,12 +41,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
-	// Test the database connection
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	r := mux.NewRouter()
 
