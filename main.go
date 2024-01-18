@@ -66,16 +66,20 @@ func main() {
 	r.PathPrefix("/static/").Handler(staticRoute)
 
 	// Load on root path our index.html
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/index.html")
-	})
+	// r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	http.ServeFile(w, r, "./static/index.html")
+	// })
 
 	// Handle 404
 	// r.HandleFunc("/404", templ.Handler(notFoundComponent(), templ.WithStatus(http.StatusNotFound)))
 
-	// Load
+	// Login related routes
 	loginHandler := &handlers.LoginHandler{DB: db}
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
+
+	// Game related routes
+	gameHandler := &handlers.GameHandler{}
+	r.HandleFunc("/", gameHandler.RenderGamePage)
 
 	port := ":3000"
 	log.Print("Listening on port ", port)

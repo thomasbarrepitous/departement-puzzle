@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"departement/components"
-	"departement/models"
 	"net/http"
 )
 
@@ -13,12 +12,6 @@ type LoginHandler struct {
 }
 
 func (lh *LoginHandler) RenderLoginPage(w http.ResponseWriter, r *http.Request) {
-	user := models.User{
-		Username: "test",
-		Password: "test",
-		Email:    "oui@oui.com",
-	}
-
-	component := components.LoginPageComponent(user)
+	component := components.LoginPageComponent()
 	component.Render(r.Context(), w)
 }
