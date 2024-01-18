@@ -3,14 +3,76 @@ package components
 import ()
 
 templ LoginPageComponent() {
-	<html>
-		<head>
-			<title>My App</title>
-		</head>
-		<body>
-			<div id="app">
-				<div>jhdaojdiowj </div>
+	@BaseHead("Login Page") {
+		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+	}
+	@BaseBody() {
+		<div class="bg-gradient-to-br from-indigo-800 to-purple-800 text-white flex flex-col items-center justify-center h-screen">
+			<div class="max-w-md w-full p-8 bg-gray-800 rounded-md shadow-lg transform transition-transform hover:scale-105">
+				<h2 class="text-3xl font-extrabold mb-4 text-center">Login</h2>
+				<form>
+					<div class="mb-4">
+						<label for="username" class="block text-sm font-large">Username</label>
+						<input type="text" id="username" name="username" class="mt-1 p-2 w-full border rounded-md text-black text-lg transition duration-300 hover:border-b-2 focus:border-b-2 border-gray-500"/>
+					</div>
+					<div class="mb-6">
+						<label for="password" class="block text-sm font-large">Password</label>
+						<input type="password" id="password" name="password" class="mt-1 p-2 w-full border rounded-md text-black text-lg transition duration-300 hover:border-b-2 focus:border-b-2 border-gray-500"/>
+					</div>
+					<!-- Classic sign in -->
+					<button
+						type="submit"
+						hx-post="/api/auth/login"
+						class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline-green active:bg-green-800 mb-4"
+					>
+						Login
+					</button>
+					<button
+						type="button"
+						hx-get="/register"
+						class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline-blue active:bg-blue-800"
+					>
+						Create Account
+					</button>
+					<!-- "Or" Sentence and "Sign in with" Text -->
+					<div class="mt-6 text-center text-white">
+						<div class="border-t border-gray-500 mb-4"></div>
+						<p class="text-sm">Or</p>
+						<p class="text-lg font-semibold mb-2">Sign in with</p>
+					</div>
+					<!-- New OAuth Sign-in Buttons -->
+					<div class="flex justify-center items-center mt-4">
+						<button
+							type="button"
+							hx-post="/api/auth/github"
+							class="w-12 h-12 bg-black-400 hover:bg-black-500 text-white font-bold rounded-full focus:outline-none focus:shadow-outline-blue active:bg-black-600 mx-2 flex items-center justify-center"
+						>
+							<img src="https://github.com/fluidicon.png" alt="Github Logo" class="w-8 h-8"/>
+						</button>
+						<button
+							type="button"
+							hx-post="/api/auth/google"
+							class="w-12 h-12 bg-white-500 hover:bg-white-600 text-white font-bold rounded-full focus:outline-none focus:shadow-outline-white active:bg-red-800 mx-2 flex items-center justify-center"
+						>
+							<img src="/static/assets/google_logo.png" alt="Google Logo" class="w-8 h-8"/>
+						</button>
+						<button
+							type="button"
+							hx-post="/api/auth/linkedin"
+							class="w-12 h-12 bg-white-500 hover:bg-white-600 text-white font-bold rounded-full focus:outline-none focus:shadow-outline-white active:bg-white-800 mx-2 flex items-center justify-center"
+						>
+							<img src="/static/assets/linkedin_logo.png" alt="LinkedIn Logo" class="w-8 h-8"/>
+						</button>
+						<button
+							type="button"
+							hx-post="/api/auth/facebook"
+							class="w-12 h-12 bg-black-400 hover:bg-black-500 text-white font-bold rounded-full focus:outline-none focus:shadow-outline-blue active:bg-black-600 mx-2 flex items-center justify-center"
+						>
+							<img src="/static/assets/X_logo.png" alt="X Logo" class="w-8 h-8"/>
+						</button>
+					</div>
+				</form>
 			</div>
-		</body>
-	</html>
+		</div>
+	}
 }

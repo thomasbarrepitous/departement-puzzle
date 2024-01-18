@@ -65,17 +65,18 @@ func main() {
 	staticRoute := http.StripPrefix("/static/", http.FileServer(neuteredFileSystem{http.Dir("./static")}))
 	r.PathPrefix("/static/").Handler(staticRoute)
 
-	// Load on root path our index.html
-	// r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	http.ServeFile(w, r, "./static/index.html")
-	// })
-
 	// Handle 404
 	// r.HandleFunc("/404", templ.Handler(notFoundComponent(), templ.WithStatus(http.StatusNotFound)))
 
 	// Login related routes
 	loginHandler := &handlers.LoginHandler{DB: db}
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
+	// r.HandleFunc("/register", loginHandler.RenderRegisterPage)
+	// apiRouter.HandleFunc("/login", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/github", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/google", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/linkedin", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/x", loginHandler.ClassicHandle).Methods("POST")
 
 	// Game related routes
 	gameHandler := &handlers.GameHandler{}

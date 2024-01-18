@@ -3,100 +3,77 @@ package components;
 import ()
 
 templ GamePageComponent() {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>Guess the departement !</title>
-			<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-			<link rel="stylesheet" href="/static/css/style.css"/>
-			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css"/>
-			<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
-			<script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
-			<script src="/static/js/map.js"></script>
-			<script src="/static/js/codes.js"></script>
-			<script src="/static/js/game.js"></script>
-			<script>
-            var gameObs = new GameObserver(stateMap);
-        </script>
-		</head>
-		<body class="bg-gradient-to-br from-indigo-800 to-purple-800 text-white flex flex-col min-h-screen">
-			<!-- Navbar -->
-			<nav class="bg-gray-800 p-4 text-white flex items-center justify-between flex-shrink-0">
-				<div class="flex items-center"><img src="/static/assets/logo.png" alt="Logo" class="h-8 w-8 mr-2"/></div>
-				<div class="flex-grow items-center justify-center text-xl font-bold">
-					Guess the Department !
+	@BaseHead("Guessing Game") {
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css"/>
+		<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+		<script src="/static/js/map.js"></script>
+		<script src="/static/js/codes.js"></script>
+		<script src="/static/js/game.js"></script>
+		<script>
+        var gameObs = new GameObserver(stateMap);
+    </script>
+	}
+	@BaseBody() {
+		<div class="container mx-auto mt-4 flex flex-col flex-1">
+			<!-- Win Message -->
+			<div id="winMessage" class="win-message-container hidden">
+				<div class="trophy-icon">
+					🏆
 				</div>
-				<div class="flex items-center ml-auto">
-					<img src="https://github.com/fluidicon.png" alt="GitHub Logo" class="h-6 w-6 mr-2"/>
-					<a
-						href="https://github.com/thomasbarrepitous"
-						target="_blank"
-						class="text-lg font-semibold hover:underline"
-					>GitHub</a>
-				</div>
-			</nav>
-			<div class="container mx-auto mt-4 flex flex-col flex-1">
-				<!-- Win Message -->
-				<div id="winMessage" class="win-message-container hidden">
-					<div class="trophy-icon">
-						🏆
-					</div>
-					<p class="text-2xl font-bold mb-2">You won!</p>
-					<p class="text-lg">Congratulations ! Your time is <span id="timerWinMessage"></span></p>
-					<div class="mt-4">
-						<button
-							id="playAgainButton"
-							type="button"
-							onclick="gameObs.playAgain()"
-							class="px-5 py-3 text-base font-medium focus:outline-none text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-						>
-							Play
-							again
-						</button>
-					</div>
-				</div><!-- Top Section (Guess and Timer) -->
-				<div class="flex justify-between mb-4">
-					<!-- Guess Section -->
-					<div class="bg-indigo-900 p-6 flex-1 rounded-lg shadow-md">
-						<div class="text-3xl font-extrabold text-center text-white">
-							Find: <span id="guessDisplay">?</span>
-						</div>
-					</div><!-- Timer Section -->
-					<div class="bg-purple-800 p-6 flex-1 ml-4 rounded-lg shadow-md">
-						<div class="text-3xl font-extrabold text-center text-white">
-							Time: <span id="timerDisplay">00:00</span>s
-						</div>
-					</div>
-				</div><!-- Map Section -->
-				<div class="flex-1 bg-gray-800 rounded-md shadow-lg overflow-hidden">
-					<div id="map" hx-target="#map" hx-swap="outerHTML"></div>
-				</div><!-- Bottom Bar  -->
-				<div class="flex justify-center items-center p-4 bg-gray-900">
-					<!-- Start Button -->
+				<p class="text-2xl font-bold mb-2">You won!</p>
+				<p class="text-lg">Congratulations ! Your time is <span id="timerWinMessage"></span></p>
+				<div class="mt-4">
 					<button
-						id="startButton"
+						id="playAgainButton"
 						type="button"
-						onclick="toggleButton(this, gameObs)"
+						onclick="gameObs.playAgain()"
 						class="px-5 py-3 text-base font-medium focus:outline-none text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-					>Start</button>
-					<!-- Stop Button -->
-					<button
-						id="stopButton"
-						type="button"
-						onclick="toggleButton(this, gameObs)"
-						class="hidden px-5 py-3 text-base font-medium focus:outline-none text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-					>Stop</button>
-					<!-- Skip Button -->
-					<button
-						id="skipButton"
-						type="button"
-						onclick="gameObs.skip()"
-						class="px-5 py-3 text-base font-medium focus:outline-none text-white bg-yellow-500 hover:bg-yellow-600 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900"
-					>Skip</button>
+					>
+						Play
+						again
+					</button>
 				</div>
+			</div><!-- Top Section (Guess and Timer) -->
+			<div class="flex justify-between mb-4">
+				<!-- Guess Section -->
+				<div class="bg-indigo-900 p-6 flex-1 rounded-lg shadow-md">
+					<div class="text-3xl font-extrabold text-center text-white">
+						Find: <span id="guessDisplay">?</span>
+					</div>
+				</div><!-- Timer Section -->
+				<div class="bg-purple-800 p-6 flex-1 ml-4 rounded-lg shadow-md">
+					<div class="text-3xl font-extrabold text-center text-white">
+						Time: <span id="timerDisplay">00:00</span>s
+					</div>
+				</div>
+			</div><!-- Map Section -->
+			<div class="flex-1 bg-gray-800 rounded-md shadow-lg overflow-hidden">
+				<div id="map" hx-target="#map" hx-swap="outerHTML"></div>
+			</div><!-- Bottom Bar  -->
+			<div class="flex justify-center items-center p-4 bg-gray-900">
+				<!-- Start Button -->
+				<button
+					id="startButton"
+					type="button"
+					onclick="toggleButton(this, gameObs)"
+					class="px-5 py-3 text-base font-medium focus:outline-none text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+				>Start</button>
+				<!-- Stop Button -->
+				<button
+					id="stopButton"
+					type="button"
+					onclick="toggleButton(this, gameObs)"
+					class="hidden px-5 py-3 text-base font-medium focus:outline-none text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+				>Stop</button>
+				<!-- Skip Button -->
+				<button
+					id="skipButton"
+					type="button"
+					onclick="gameObs.skip()"
+					class="px-5 py-3 text-base font-medium focus:outline-none text-white bg-yellow-500 hover:bg-yellow-600 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900"
+				>Skip</button>
 			</div>
-		</body>
-	</html>
+		</div>
+	}
 }
