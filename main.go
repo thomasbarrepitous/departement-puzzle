@@ -2,8 +2,8 @@ package main
 
 import (
 	"departement/db"
-	"departement/limit"
-	"fmt"
+	"departement/handlers"
+	"departement/utils"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -13,29 +13,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getAllUsers(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "OK\n")
+type Server struct {
+	Server *http.Server
 }
 
-func createNewUser(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "OK\n")
-}
-
-func getAllRankings(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "OK\n")
-}
-
-func createNewRanking(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "OK\n")
-}
-
-func checkHealth(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "OK\n")
+func NewServer(listenAddr string, r *mux.Router) *Server {
+	return &Server{
+		Server: &http.Server{
+			Addr:         listenAddr,
+			Handler:      utils.Limit(r),
+			WriteTimeout: 15 * time.Second,
+			ReadTimeout:  15 * time.Second,
+		},
+	}
 }
 
 func main() {
@@ -57,16 +47,16 @@ func main() {
 	// Create subrouter for our API routes
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
-	// Health check
-	apiRouter.HandleFunc("/health", checkHealth).Methods("GET")
-
 	// Users
-	apiRouter.HandleFunc("/users", getAllUsers).Methods("GET")
-	apiRouter.HandleFunc("/users", createNewUser).Methods("POST")
+	userHandler := &handlers.UserHandler{DB: db}
+	apiRouter.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
+	apiRouter.HandleFunc("/users/{id}", userHandler.GetUserByID).Methods("GET")
+	apiRouter.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
 
 	// Rankings
-	apiRouter.HandleFunc("/rankings", getAllRankings).Methods("GET")
-	apiRouter.HandleFunc("/rankings", createNewRanking).Methods("POST")
+	rankingHandler := &handlers.RankingHandler{DB: db}
+	apiRouter.HandleFunc("/rankings", rankingHandler.GetAllRankings).Methods("GET")
+	apiRouter.HandleFunc("/rankings", rankingHandler.CreateRanking).Methods("POST")
 
 	// Load our assets (css, js, images, etc.)
 	staticRoute := http.StripPrefix("/static/", http.FileServer(neuteredFileSystem{http.Dir("./static")}))
@@ -77,14 +67,10 @@ func main() {
 		http.ServeFile(w, r, "./static/index.html")
 	})
 
-	log.Print("Listening on :3000")
-	srv := &http.Server{
-		Handler:      limit.Limit(r),
-		Addr:         ":3000",
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
-	log.Fatal(srv.ListenAndServe())
+	port := ":3000"
+	log.Print("Listening on port ", port)
+	s := NewServer(port, r)
+	log.Fatal(s.Server.ListenAndServe())
 }
 
 // neuteredFileSystem is a custom implementation of http.FileSystem
