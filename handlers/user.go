@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"departement/models"
 	"departement/utils"
@@ -14,7 +15,8 @@ import (
 
 // UserHandler represents the controller for user-related operations
 type UserHandler struct {
-	DB *sql.DB
+	DB  *sql.DB
+	Ctx context.Context
 }
 
 // GetAllUsers handles the request to get all users

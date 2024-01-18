@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"departement/db"
 	"departement/handlers"
 	"departement/utils"
@@ -44,11 +45,13 @@ func main() {
 
 	r := mux.NewRouter()
 
+	ctx := context.Background()
+
 	// Create subrouter for our API routes
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
 	// Users
-	userHandler := &handlers.UserHandler{DB: db}
+	userHandler := &handlers.UserHandler{DB: db, Ctx: ctx}
 	apiRouter.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
 	apiRouter.HandleFunc("/users/{id}", userHandler.GetUserByID).Methods("GET")
 	apiRouter.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
@@ -66,6 +69,13 @@ func main() {
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/index.html")
 	})
+
+	// Handle 404
+	// r.HandleFunc("/404", templ.Handler(notFoundComponent(), templ.WithStatus(http.StatusNotFound)))
+
+	// Load
+	loginHandler := &handlers.LoginHandler{DB: db}
+	r.HandleFunc("/login", loginHandler.RenderLoginPage)
 
 	port := ":3000"
 	log.Print("Listening on port ", port)
