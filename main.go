@@ -71,7 +71,7 @@ func main() {
 	// Login related routes
 	loginHandler := &handlers.LoginHandler{DB: db}
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
-	// r.HandleFunc("/register", loginHandler.RenderRegisterPage)
+	r.HandleFunc("/register", loginHandler.RenderRegisterPage)
 	// apiRouter.HandleFunc("/login", loginHandler.ClassicHandle).Methods("POST")
 	// apiRouter.HandleFunc("/github", loginHandler.ClassicHandle).Methods("POST")
 	// apiRouter.HandleFunc("/google", loginHandler.ClassicHandle).Methods("POST")

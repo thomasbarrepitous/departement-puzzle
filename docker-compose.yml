@@ -10,6 +10,10 @@ services:
     - postgres
     env_file:
     - .env
+    develop:
+      watch:
+        - action: rebuild
+          path: ./main
   postgres:
     image: postgres:latest
     environment:
