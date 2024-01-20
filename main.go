@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"departement/db"
 	"departement/handlers"
 	"departement/utils"
@@ -29,20 +30,11 @@ func NewServer(listenAddr string, r *mux.Router) *Server {
 	}
 }
 
-func main() {
-	// Initialize env variables
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+type Router struct {
+	Router *mux.Router
+}
 
-	// Initialize the database
-	db, err := db.ConnectDB(*db.NewDBConfig())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
+func NewRouter(db *sql.DB) *Router {
 	r := mux.NewRouter()
 
 	ctx := context.Background()
@@ -82,9 +74,29 @@ func main() {
 	gameHandler := &handlers.GameHandler{}
 	r.HandleFunc("/", gameHandler.RenderGamePage)
 
+	return &Router{r}
+}
+
+func main() {
+	// Initialize env variables
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	// Initialize the database
+	db, err := db.ConnectDB(*db.NewDBConfig())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Initialize the router
+	r := NewRouter(db)
+
 	port := ":3000"
 	log.Print("Listening on port ", port)
-	s := NewServer(port, r)
+	s := NewServer(port, r.Router)
 	log.Fatal(s.Server.ListenAndServe())
 }
 
