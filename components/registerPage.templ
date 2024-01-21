@@ -5,12 +5,19 @@ import ()
 templ RegisterPageComponent() {
 	@BaseHead("Login Page") {
 		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+		<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
 	}
 	@BaseBody() {
 		<div class="bg-gradient-to-br from-indigo-800 to-purple-800 text-white flex flex-col items-center justify-center h-screen">
 			<div class="max-w-md w-full p-8 bg-gray-800 rounded-md shadow-lg">
 				<h2 class="text-3xl font-extrabold mb-4 text-center">Create an Account</h2>
-				<form>
+				<form
+					hx-ext="json-enc"
+					hx-encoding="application/json"
+					hx-post="/api/users"
+					hx-indicator="#loading"
+					hx-swap="none"
+				>
 					<div class="mb-4">
 						<label for="username" class="block text-sm font-medium">Username</label>
 						<input type="text" id="username" name="username" class="mt-1 p-2 w-full border rounded-md text-black"/>
@@ -33,6 +40,7 @@ templ RegisterPageComponent() {
 				<div class="mt-4">
 					<p>Already have an account? <a href="/login" class="underline">Login here</a>.</p>
 				</div>
+				<img id="loading" class="hidden" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Loading_spinner.svg/640px-Loading_spinner.svg.png"/>
 			</div>
 		</div>
 	}

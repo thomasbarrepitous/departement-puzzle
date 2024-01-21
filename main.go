@@ -46,7 +46,11 @@ func NewRouter(db *sql.DB) *Router {
 	userHandler := &handlers.UserHandler{DB: db, Ctx: ctx}
 	apiRouter.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
 	apiRouter.HandleFunc("/users/{id}", userHandler.GetUserByID).Methods("GET")
-	apiRouter.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
+
+	// Registration
+	registerHandler := &handlers.RegisterHandler{DB: db}
+	apiRouter.HandleFunc("/users", registerHandler.RegisterHandle).Methods("POST")
+	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
 
 	// Rankings
 	rankingHandler := &handlers.RankingHandler{DB: db}
@@ -62,9 +66,8 @@ func NewRouter(db *sql.DB) *Router {
 
 	// Login related routes
 	loginHandler := &handlers.LoginHandler{DB: db}
+	apiRouter.HandleFunc("/login", loginHandler.JWTLoginHandle).Methods("POST")
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
-	r.HandleFunc("/register", loginHandler.RenderRegisterPage)
-	// apiRouter.HandleFunc("/login", loginHandler.ClassicHandle).Methods("POST")
 	// apiRouter.HandleFunc("/github", loginHandler.ClassicHandle).Methods("POST")
 	// apiRouter.HandleFunc("/google", loginHandler.ClassicHandle).Methods("POST")
 	// apiRouter.HandleFunc("/linkedin", loginHandler.ClassicHandle).Methods("POST")

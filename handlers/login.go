@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"departement/components"
 	"departement/models"
+	"departement/utils"
 	"net/http"
 )
 
@@ -22,13 +23,8 @@ func (lh *LoginHandler) getUserByUsername(username string) (models.User, error) 
 	return user, err
 }
 
-// userIsAuthenticated checks if the user is authenticated
-func userIsAuthenticated(r *http.Request) bool {
-	return true // Dummy example: Always assume the user is authenticated
-}
-
 // Handle the classic login submission and redirect to the dashboard if successful
-func (lh *LoginHandler) ClassicLoginHandle(w http.ResponseWriter, r *http.Request) {
+func (lh *LoginHandler) JWTLoginHandle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.FormValue("username")
 	password := r.FormValue("password")
@@ -45,6 +41,20 @@ func (lh *LoginHandler) ClassicLoginHandle(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Create a JWT token
+	token, tokenErr := utils.CreateToken(user.ID)
+	if tokenErr != nil {
+		lh.RenderLoginPage(w, r)
+		return
+	}
+
+	// Set the token in the HTTPOnly cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		HttpOnly: true,
+	})
+
 	// lh.RenderProfilePage(w, r)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -52,11 +62,5 @@ func (lh *LoginHandler) ClassicLoginHandle(w http.ResponseWriter, r *http.Reques
 // RenderLoginPage renders the login page
 func (lh *LoginHandler) RenderLoginPage(w http.ResponseWriter, r *http.Request) {
 	component := components.LoginPageComponent()
-	component.Render(r.Context(), w)
-}
-
-// RenderRegisterPage renders the login page
-func (lh *LoginHandler) RenderRegisterPage(w http.ResponseWriter, r *http.Request) {
-	component := components.RegisterPageComponent()
 	component.Render(r.Context(), w)
 }
