@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"database/sql"
 	"departement/models"
+	"departement/storage"
 	"departement/utils"
 	"encoding/json"
 	"io"
@@ -14,72 +14,17 @@ import (
 
 // RankingHandler represents the controller for ranking-related operations
 type RankingHandler struct {
-	DB *sql.DB
-}
-
-// getBestRankingsInDB queries the database to get the best rankings
-func (rh *RankingHandler) getBestRankingsInDB() ([]models.Ranking, error) {
-	rows, err := rh.DB.Query("SELECT * FROM rankings ORDER BY score DESC LIMIT 10")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var rankings []models.Ranking
-	for rows.Next() {
-		var ranking models.Ranking
-
-		err := rows.Scan(&ranking.ID, &ranking.UserID, &ranking.Score)
-		if err != nil {
-			return nil, err
-		}
-
-		rankings = append(rankings, ranking)
-	}
-
-	return rankings, nil
-}
-
-// GetAllRankingsInDB queries the database to get all rankings
-func (rh *RankingHandler) GetAllRankingsInDB() ([]models.Ranking, error) {
-	rows, err := rh.DB.Query("SELECT * FROM rankings")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var rankings []models.Ranking
-	for rows.Next() {
-		var ranking models.Ranking
-
-		err := rows.Scan(&ranking.ID, &ranking.UserID, &ranking.Score)
-		if err != nil {
-			return nil, err
-		}
-
-		rankings = append(rankings, ranking)
-	}
-
-	return rankings, nil
+	Store storage.RankingStorage
 }
 
 // GetAllRankings handles the request to get all rankings
 func (rh *RankingHandler) GetAllRankings(w http.ResponseWriter, r *http.Request) {
-	rankings, err := rh.GetAllRankingsInDB()
+	rankings, err := rh.Store.GetAllRankings()
 	if err != nil {
 		utils.JSONRespond(w, http.StatusInternalServerError, err)
 		return
 	}
 	utils.JSONRespond(w, http.StatusOK, rankings)
-}
-
-// createRankingInDB creates a new ranking in the database
-func (rh *RankingHandler) createRankingInDB(ranking models.Ranking) (models.Ranking, error) {
-	_, err := rh.DB.Exec("INSERT INTO rankings (user_id, score) VALUES ($1, $2)", ranking.UserID, ranking.Score)
-	if err != nil {
-		return ranking, err
-	}
-	return ranking, nil
 }
 
 // CreateRanking handles the request to create a new ranking
@@ -92,7 +37,7 @@ func (rh *RankingHandler) CreateRanking(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Parse the request body
+	// Parse the request body into a ranking struct
 	var ranking models.Ranking
 	parseErr := json.Unmarshal(body, &ranking)
 	if parseErr != nil {
@@ -102,7 +47,7 @@ func (rh *RankingHandler) CreateRanking(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Insert the new ranking into the database
-	ranking, dbErr := rh.createRankingInDB(ranking)
+	ranking, dbErr := rh.Store.CreateRanking(ranking)
 	if dbErr != nil {
 		utils.JSONRespond(w, http.StatusInternalServerError, dbErr)
 		return

@@ -17,8 +17,8 @@ type AuthMiddleware struct {
 	Handler http.Handler
 }
 
-// CreateToken creates a new JWT token with custom claims
-func CreateToken(userID int) (string, error) {
+// CreateJWT creates a new JWT token with custom claims
+func CreateJWT(userID int) (string, error) {
 	expirationTime := time.Now().Add(15 * time.Minute)
 	// Custom claims
 	claims := jwt.MapClaims{
@@ -35,7 +35,7 @@ func CreateToken(userID int) (string, error) {
 	return token, nil
 }
 
-func TokenVerifyMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func JWTVerifyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	// Verify the token and call the next handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")

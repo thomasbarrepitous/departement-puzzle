@@ -28,8 +28,10 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 		}
 	}
 
+	// Limit the size of the request body to 1MB
 	r.Body = http.MaxBytesReader(w, r.Body, 1048576)
 
+	// Decode the JSON body into the provided struct
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 
@@ -76,4 +78,11 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 	}
 
 	return nil
+}
+
+// RespondJSON sends a JSON response with the specified status code and data
+func JSONRespond(w http.ResponseWriter, status int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Status", fmt.Sprintf("%d", status))
+	json.NewEncoder(w).Encode(data)
 }

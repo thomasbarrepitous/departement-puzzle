@@ -1,10 +1,10 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"departement/db"
 	"departement/handlers"
+	"departement/storage"
 	"departement/utils"
 	"log"
 	"net/http"
@@ -37,23 +37,23 @@ type Router struct {
 func NewRouter(db *sql.DB) *Router {
 	r := mux.NewRouter()
 
-	ctx := context.Background()
-
 	// Create subrouter for our API routes
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
+	store := storage.NewPostgresStorage(db)
+
 	// Users
-	userHandler := &handlers.UserHandler{DB: db, Ctx: ctx}
+	userHandler := &handlers.UserHandler{Store: store}
 	apiRouter.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
 	apiRouter.HandleFunc("/users/{id}", userHandler.GetUserByID).Methods("GET")
 
 	// Registration
-	registerHandler := &handlers.RegisterHandler{DB: db}
+	registerHandler := &handlers.RegisterHandler{Store: store}
 	apiRouter.HandleFunc("/users", registerHandler.RegisterHandle).Methods("POST")
 	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
 
 	// Rankings
-	rankingHandler := &handlers.RankingHandler{DB: db}
+	rankingHandler := &handlers.RankingHandler{Store: store}
 	apiRouter.HandleFunc("/rankings", rankingHandler.GetAllRankings).Methods("GET")
 	apiRouter.HandleFunc("/rankings", rankingHandler.CreateRanking).Methods("POST")
 
@@ -65,11 +65,12 @@ func NewRouter(db *sql.DB) *Router {
 	// r.HandleFunc("/404", templ.Handler(notFoundComponent(), templ.WithStatus(http.StatusNotFound)))
 
 	// Login related routes
-	loginHandler := &handlers.LoginHandler{DB: db}
+	loginHandler := &handlers.LoginHandler{Store: store}
 	apiRouter.HandleFunc("/auth/login", loginHandler.JWTLoginHandle).Methods("POST")
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
-	// apiRouter.HandleFunc("/auth/auth/github", loginHandler.ClassicHandle).Methods("POST")
-	// apiRouter.HandleFunc("/auth/google", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/auth/github", loginHandler.ClassicHandle).Methods("POST")
+	apiRouter.HandleFunc("/auth/google", loginHandler.GoogleLoginHandle).Methods("POST")
+	apiRouter.HandleFunc("/auth/google/callback", loginHandler.GoogleCallbackHandle)
 	// apiRouter.HandleFunc("/auth/linkedin", loginHandler.ClassicHandle).Methods("POST")
 	// apiRouter.HandleFunc("/auth/x", loginHandler.ClassicHandle).Methods("POST")
 

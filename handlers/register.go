@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"database/sql"
 	"departement/components"
 	"departement/models"
+	"departement/storage"
 	"departement/utils"
 	"errors"
 	"log"
@@ -11,31 +11,7 @@ import (
 )
 
 type RegisterHandler struct {
-	DB *sql.DB
-}
-
-// createUserInDB creates a new user in the database
-func (rh *RegisterHandler) createUserInDB(user models.User) (models.User, error) {
-	_, err := rh.DB.Exec("INSERT INTO users (username, password, email) VALUES ($1, $2, $3)", user.Username, user.Password, user.Email)
-	if err != nil {
-		return user, err
-	}
-	return user, nil
-}
-
-// CreateUser handles the request to create a new user
-func (rh *RegisterHandler) CreateUser(user models.User) (models.User, error) {
-	// Hash the password
-	user.SetPassword(user.Password)
-
-	// Create the user in the database
-	user, dbErr := rh.createUserInDB(user)
-	if dbErr != nil {
-		log.Print(dbErr.Error())
-		return user, dbErr
-	}
-
-	return user, nil
+	Store storage.UserStorage
 }
 
 func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request) {
@@ -55,9 +31,12 @@ func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request
 	}
 
 	// Create the user in the database
-	user, creationError := rh.CreateUser(user)
-	if creationError != nil {
-		utils.JSONRespond(w, http.StatusInternalServerError, creationError)
+	// We reinitialize the user struct to hash the password
+	// As the New() function is not called when unmarshalling the JSON
+	user, dbErr := rh.Store.CreateUser(models.NewUser(user.Username, user.Password, user.Email))
+	if dbErr != nil {
+		log.Print(dbErr.Error())
+		utils.JSONRespond(w, http.StatusInternalServerError, dbErr)
 		return
 	}
 

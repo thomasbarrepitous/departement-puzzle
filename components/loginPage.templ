@@ -11,12 +11,7 @@ templ LoginPageComponent() {
 		<div class="bg-gradient-to-br from-indigo-800 to-purple-800 text-white flex flex-col items-center justify-center h-screen">
 			<div class="max-w-md w-full p-8 bg-gray-800 rounded-md shadow-lg transform transition-transform hover:scale-105">
 				<h2 class="text-3xl font-extrabold mb-4 text-center">Login</h2>
-				<form
-					hx-ext="json-enc"
-					hx-encoding="application/json"
-					hx-post="/api/auth/login"
-					hx-swap="none"
-				>
+				<form>
 					<div class="mb-4">
 						<label for="username" class="block text-sm font-large">Username</label>
 						<input type="text" id="username" name="username" class="mt-1 p-2 w-full border rounded-md text-black text-lg transition duration-300 hover:border-b-2 focus:border-b-2 border-gray-500"/>
@@ -28,6 +23,10 @@ templ LoginPageComponent() {
 					<!-- Classic sign in -->
 					<button
 						type="submit"
+						hx-ext="json-enc"
+						hx-encoding="application/json"
+						hx-post="/api/auth/login"
+						hx-swap="none"
 						class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline-green active:bg-green-800 mb-4"
 					>
 						Login
@@ -56,6 +55,7 @@ templ LoginPageComponent() {
 						</button>
 						<button
 							type="button"
+							hx-params="none"
 							hx-post="/api/auth/google"
 							class="w-12 h-12 bg-white-500 hover:bg-white-600 text-white font-bold rounded-full focus:outline-none focus:shadow-outline-white active:bg-red-800 mx-2 flex items-center justify-center"
 						>

@@ -14,14 +14,16 @@ type UserResponse struct {
 	Email    string `json:"email"`
 }
 
-// SetPassword hashes and sets the password for the user
-func (u *User) SetPassword(password string) error {
+func NewUser(username string, password string, email string) User {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		panic(err)
 	}
-	u.Password = string(hashedPassword)
-	return nil
+	return User{
+		Username: username,
+		Password: string(hashedPassword),
+		Email:    email,
+	}
 }
 
 // CheckPassword verifies the provided password against the stored hash
