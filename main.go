@@ -66,12 +66,12 @@ func NewRouter(db *sql.DB) *Router {
 
 	// Login related routes
 	loginHandler := &handlers.LoginHandler{DB: db}
-	apiRouter.HandleFunc("/login", loginHandler.JWTLoginHandle).Methods("POST")
+	apiRouter.HandleFunc("/auth/login", loginHandler.JWTLoginHandle).Methods("POST")
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
-	// apiRouter.HandleFunc("/github", loginHandler.ClassicHandle).Methods("POST")
-	// apiRouter.HandleFunc("/google", loginHandler.ClassicHandle).Methods("POST")
-	// apiRouter.HandleFunc("/linkedin", loginHandler.ClassicHandle).Methods("POST")
-	// apiRouter.HandleFunc("/x", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/auth/auth/github", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/auth/google", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/auth/linkedin", loginHandler.ClassicHandle).Methods("POST")
+	// apiRouter.HandleFunc("/auth/x", loginHandler.ClassicHandle).Methods("POST")
 
 	// Game related routes
 	gameHandler := &handlers.GameHandler{}

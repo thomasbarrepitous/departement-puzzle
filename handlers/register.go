@@ -66,8 +66,6 @@ func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request
 		Email:    user.Email,
 	}
 
-	// Redirect to the login page if the user was created successfully
-	w.Header().Add("HX-Redirect", "/login")
 	utils.JSONRespond(w, http.StatusOK, userResponse)
 }
 

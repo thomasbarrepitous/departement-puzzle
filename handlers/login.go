@@ -5,12 +5,19 @@ import (
 	"departement/components"
 	"departement/models"
 	"departement/utils"
+	"errors"
+	"log"
 	"net/http"
 )
 
 // LoginHandler is the handler for the login page
 type LoginHandler struct {
 	DB *sql.DB
+}
+
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 // getUserByUsername retrieves a user from the database by username
@@ -23,40 +30,56 @@ func (lh *LoginHandler) getUserByUsername(username string) (models.User, error) 
 	return user, err
 }
 
-// Handle the classic login submission and redirect to the dashboard if successful
+// Handle the classic login submission
 func (lh *LoginHandler) JWTLoginHandle(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
-	user, wrongUsernameErr := lh.getUserByUsername(username)
-	if wrongUsernameErr != nil {
-		lh.RenderLoginPage(w, r)
+	loginRequest := LoginRequest{}
+	// Decode the request body into the user struct
+	decodeErr := utils.DecodeJSONBody(w, r, &loginRequest)
+	if decodeErr != nil {
+		var mr *utils.MalformedRequest
+		if errors.As(decodeErr, &mr) {
+			http.Error(w, mr.Message, mr.Status)
+		} else {
+			log.Print(decodeErr.Error())
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
 		return
 	}
 
-	wrongPasswordErr := user.CheckPassword(password)
+	user, wrongUsernameErr := lh.getUserByUsername(loginRequest.Username)
+	if wrongUsernameErr != nil {
+		log.Print(wrongUsernameErr.Error())
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	wrongPasswordErr := user.CheckPassword(loginRequest.Password)
 	if wrongPasswordErr != nil {
-		lh.RenderLoginPage(w, r)
+		log.Print(wrongPasswordErr.Error())
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	// Create a JWT token
 	token, tokenErr := utils.CreateToken(user.ID)
 	if tokenErr != nil {
-		lh.RenderLoginPage(w, r)
+		log.Print(tokenErr.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	// Set the token in the HTTPOnly cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
+		Name:     "Authorization",
 		Value:    token,
+		MaxAge:   3600 * 24 * 7,
+		SameSite: http.SameSiteLaxMode,
+		// Don't set Secure to true in development
+		Secure:   false,
 		HttpOnly: true,
 	})
 
-	// lh.RenderProfilePage(w, r)
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
 // RenderLoginPage renders the login page
