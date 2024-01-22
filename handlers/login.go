@@ -79,6 +79,7 @@ func (lh *LoginHandler) JWTLoginHandle(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
+	w.Header().Add("HX-Redirect", "/")
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
