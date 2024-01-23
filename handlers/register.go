@@ -51,6 +51,6 @@ func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request
 
 // RenderRegisterPage renders the login page
 func (rh *RegisterHandler) RenderRegisterPage(w http.ResponseWriter, r *http.Request) {
-	component := components.RegisterPageComponent()
+	component := components.RegisterPageComponent(r)
 	component.Render(r.Context(), w)
 }

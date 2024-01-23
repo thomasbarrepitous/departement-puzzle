@@ -1,24 +1,26 @@
 package components
 
-import ()
+import (
+	"net/http"
+)
 
-templ LoginPageComponent() {
+templ LoginPageComponent(r *http.Request) {
 	@BaseHead("Login Page") {
 		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
 		<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
 	}
-	@BaseBody() {
+	@BaseBody(r) {
 		<div class="bg-gradient-to-br from-indigo-800 to-purple-800 text-white flex flex-col items-center justify-center h-screen">
 			<div class="max-w-md w-full p-8 bg-gray-800 rounded-md shadow-lg transform transition-transform hover:scale-105">
 				<h2 class="text-3xl font-extrabold mb-4 text-center">Login</h2>
 				<form>
 					<div class="mb-4">
 						<label for="username" class="block text-sm font-large">Username</label>
-						<input type="text" id="username" name="username" class="mt-1 p-2 w-full border rounded-md text-black text-lg transition duration-300 hover:border-b-2 focus:border-b-2 border-gray-500"/>
+						<input type="text" id="username" name="username" class="mt-1 p-2 w-full border rounded-md text-black text-lg transition duration-300  focus:border-b-2 border-gray-500"/>
 					</div>
 					<div class="mb-6">
 						<label for="password" class="block text-sm font-large">Password</label>
-						<input type="password" id="password" name="password" class="mt-1 p-2 w-full border rounded-md text-black text-lg transition duration-300 hover:border-b-2 focus:border-b-2 border-gray-500"/>
+						<input type="password" id="password" name="password" class="mt-1 p-2 w-full border rounded-md text-black text-lg transition duration-300  focus:border-b-2 border-gray-500"/>
 					</div>
 					<!-- Classic sign in -->
 					<button

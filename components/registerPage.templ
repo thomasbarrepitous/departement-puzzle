@@ -1,13 +1,15 @@
 package components
 
-import ()
+import (
+	"net/http"
+)
 
-templ RegisterPageComponent() {
+templ RegisterPageComponent(r *http.Request) {
 	@BaseHead("Login Page") {
 		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
 		<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
 	}
-	@BaseBody() {
+	@BaseBody(r) {
 		<div class="bg-gradient-to-br from-indigo-800 to-purple-800 text-white flex flex-col items-center justify-center h-screen">
 			<div class="max-w-md w-full p-8 bg-gray-800 rounded-md shadow-lg">
 				<h2 class="text-3xl font-extrabold mb-4 text-center">Create an Account</h2>

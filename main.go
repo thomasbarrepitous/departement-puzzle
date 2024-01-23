@@ -35,12 +35,29 @@ type Router struct {
 }
 
 func NewRouter(db *sql.DB) *Router {
+	store := storage.NewPostgresStorage(db)
+
 	r := mux.NewRouter()
+
+	// Non protected routes
+
+	// Login
+	loginHandler := &handlers.LoginHandler{Store: store}
+	r.HandleFunc("/login", loginHandler.RenderLoginPage)
+	r.HandleFunc("/api/auth/login", loginHandler.JWTLoginHandle).Methods("POST")
+	r.HandleFunc("/api/auth/google", loginHandler.GoogleLoginHandle).Methods("POST")
+	r.HandleFunc("/api/auth/google/callback", loginHandler.GoogleCallbackHandle)
+	r.HandleFunc("/api/auth/logout", loginHandler.LogoutHandle)
+
+	// Protected routes
+
+	// Create subrouter for our protected routes
+	protectedRouter := r.PathPrefix("/").Subrouter()
+	protectedRouter.Use(utils.JWTVerifyMiddleware)
 
 	// Create subrouter for our API routes
 	apiRouter := r.PathPrefix("/api").Subrouter()
-
-	store := storage.NewPostgresStorage(db)
+	apiRouter.Use(utils.JWTVerifyMiddleware)
 
 	// Users
 	userHandler := &handlers.UserHandler{Store: store}
@@ -50,7 +67,11 @@ func NewRouter(db *sql.DB) *Router {
 	// Registration
 	registerHandler := &handlers.RegisterHandler{Store: store}
 	apiRouter.HandleFunc("/users", registerHandler.RegisterHandle).Methods("POST")
-	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
+	protectedRouter.HandleFunc("/register", registerHandler.RenderRegisterPage)
+
+	// Profile
+	profileHandler := &handlers.ProfileHandler{Store: store}
+	protectedRouter.HandleFunc("/profile", profileHandler.RenderProfilePage)
 
 	// Rankings
 	rankingHandler := &handlers.RankingHandler{Store: store}
@@ -64,19 +85,9 @@ func NewRouter(db *sql.DB) *Router {
 	// Handle 404
 	// r.HandleFunc("/404", templ.Handler(notFoundComponent(), templ.WithStatus(http.StatusNotFound)))
 
-	// Login related routes
-	loginHandler := &handlers.LoginHandler{Store: store}
-	apiRouter.HandleFunc("/auth/login", loginHandler.JWTLoginHandle).Methods("POST")
-	r.HandleFunc("/login", loginHandler.RenderLoginPage)
-	// apiRouter.HandleFunc("/auth/github", loginHandler.ClassicHandle).Methods("POST")
-	apiRouter.HandleFunc("/auth/google", loginHandler.GoogleLoginHandle).Methods("POST")
-	apiRouter.HandleFunc("/auth/google/callback", loginHandler.GoogleCallbackHandle)
-	// apiRouter.HandleFunc("/auth/linkedin", loginHandler.ClassicHandle).Methods("POST")
-	// apiRouter.HandleFunc("/auth/x", loginHandler.ClassicHandle).Methods("POST")
-
 	// Game related routes
 	gameHandler := &handlers.GameHandler{}
-	r.HandleFunc("/", gameHandler.RenderGamePage)
+	protectedRouter.HandleFunc("/", gameHandler.RenderGamePage)
 
 	return &Router{r}
 }

@@ -1,36 +1,73 @@
 package components
 
+import (
+	"net/http"
+)
+
 templ BaseHead(title string) {
 	<head>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<title>{ title }</title>
 		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://unpkg.com/feather-icons"></script>
 		<link rel="stylesheet" href="/static/css/style.css"/>
 		{ children... }
 	</head>
 }
 
-templ BaseBody() {
+templ BaseBody(r *http.Request) {
 	<body class="bg-gradient-to-br from-indigo-800 to-purple-800 text-white flex flex-col min-h-screen">
 		<!-- Navbar -->
-		<nav class="bg-gray-800 p-4 text-white flex items-center justify-between flex-shrink-0">
-			<div class="flex items-center"><img src="/static/assets/logo.png" alt="Logo" class="h-8 w-8 mr-2"/></div>
-			<div class="flex-grow items-center justify-center text-xl font-bold">
-				<a href="/" class="hover:animate-bounce">
-					Guess the Department !
-				</a>
-			</div>
-			<div class="flex items-center ml-auto">
-				<img src="https://github.com/fluidicon.png" alt="GitHub Logo" class="h-6 w-6 mr-2"/>
-				<a
-					href="https://github.com/thomasbarrepitous"
-					target="_blank"
-					class="text-lg font-semibold hover:underline"
-				>GitHub</a>
-			</div>
-		</nav>
+		if ctx.Value("authorized") != nil {
+			@BaseLoggedInNavbar(r)
+		} else {
+			@BaseLoggedOffNavbar()
+		}
 		<!-- Content -->
 		{ children... }
 	</body>
+	<script>
+        feather.replace();
+    </script>
+}
+
+templ BaseLoggedInNavbar(r *http.Request) {
+	<nav class="bg-gray-800 p-4 text-white flex items-center justify-between flex-shrink-0">
+		<div class="flex items-center"><img src="/static/assets/logo.png" alt="Logo" class="h-8 w-8 mr-2"/></div>
+		<div class="flex-grow items-center justify-center text-xl font-bold">
+			<a href="/" class="hover:animate-bounce">
+				Guess the Department !
+			</a>
+		</div>
+		<div class="flex items-center">
+			<div class="ml-4"></div>
+		</div>
+		<div class="flex items-center ml-auto">
+			<i data-feather="user" class="h-6 w-6 mr-2"></i>
+			<button hx-get="/profile" class="text-lg font-semibold ">Profile</button>
+		</div>
+		<div class="flex items-center ml-auto">
+			<i data-feather="log-out" class="h-6 w-6 mr-2"></i>
+			<a href="/api/auth/logout" class="text-lg font-semibold ">Log Out</a>
+		</div>
+	</nav>
+}
+
+templ BaseLoggedOffNavbar() {
+	<nav class="bg-gray-800 p-4 text-white flex items-center justify-between flex-shrink-0">
+		<div class="flex items-center"><img src="/static/assets/logo.png" alt="Logo" class="h-8 w-8 mr-2"/></div>
+		<div class="flex-grow items-center justify-center text-xl font-bold">
+			<a href="/" class="hover:animate-bounce">
+				Guess the Department !
+			</a>
+		</div>
+		<div class="flex items-center">
+			<div class="ml-4"></div>
+		</div>
+		<div class="flex items-center ml-auto">
+			<i data-feather="log-in" class="h-6 w-6 mr-2"></i>
+			<a href="/login" class="text-lg font-semibold ">Log In</a>
+		</div>
+	</nav>
 }

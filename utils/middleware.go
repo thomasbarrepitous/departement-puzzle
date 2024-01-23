@@ -1,10 +1,11 @@
 package utils
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -20,6 +21,7 @@ type AuthMiddleware struct {
 // CreateJWT creates a new JWT token with custom claims
 func CreateJWT(userID int) (string, error) {
 	expirationTime := time.Now().Add(15 * time.Minute)
+
 	// Custom claims
 	claims := jwt.MapClaims{
 		"authorized": true,
@@ -35,28 +37,20 @@ func CreateJWT(userID int) (string, error) {
 	return token, nil
 }
 
-func JWTVerifyMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func JWTVerifyMiddleware(next http.Handler) http.Handler {
 	// Verify the token and call the next handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		// Check if the token is present
-		if authHeader == "" {
-			// Token is missing, return 403
-			http.Error(w, "Authorization header is missing", http.StatusForbidden)
-			return
-		}
-
-		// Bearer token check
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 {
-			// Token is malformed, return 403
-			http.Error(w, "Malformed token", http.StatusForbidden)
+		// Check if the Authorization cookie is present
+		log.Print(r.Cookies())
+		authCookie, err := r.Cookie("Authorization")
+		if err != nil {
+			// Cookie is not present, return 403
+			http.Error(w, "Cookie is not present", http.StatusForbidden)
 			return
 		}
 
 		// Check if the token is valid
-		tokenPart := parts[1]
-		token, err := jwt.Parse(tokenPart, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.Parse(authCookie.Value, func(token *jwt.Token) (interface{}, error) {
 			// Check if the signing method is valid
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				// Signing method is not valid, return 403
@@ -77,6 +71,11 @@ func JWTVerifyMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// Add the user ID to the context
+		ctx := context.WithValue(r.Context(), "user_id", token.Claims.(jwt.MapClaims)["user_id"])
+		ctx = context.WithValue(ctx, "authorized", token.Claims.(jwt.MapClaims)["authorized"])
+
+		// Call the next handler
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

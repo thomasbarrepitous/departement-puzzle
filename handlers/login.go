@@ -9,6 +9,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"golang.org/x/oauth2"
 )
@@ -25,7 +26,7 @@ type LoginRequest struct {
 
 // RenderLoginPage renders the login page
 func (lh *LoginHandler) RenderLoginPage(w http.ResponseWriter, r *http.Request) {
-	component := components.LoginPageComponent()
+	component := components.LoginPageComponent(r)
 	component.Render(r.Context(), w)
 }
 
@@ -66,8 +67,11 @@ func (lh *LoginHandler) GoogleLoginHandle(w http.ResponseWriter, r *http.Request
 	// Create oauth2 config
 	config := utils.CreateGoogleOAuth2Config()
 
+	// Generate UUID for OAuth2 state
+	state := "state"
+
 	// Generate the URL to request an authorization code
-	url := config.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	url := config.AuthCodeURL(state, oauth2.AccessTypeOffline)
 
 	// Redirect to Google's OAuth 2.0 server
 	w.Header().Add("HX-Redirect", url)
@@ -125,19 +129,28 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 
 	// Set the JWT token in the HTTPOnly cookie and redirect to the home page
 	lh.setAuthCookieAndRedirect(w, r, user, "")
-	http.Redirect(w, r, "/", http.StatusFound)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
 // Handle the logout : delete the cookie and redirect to the login page
 func (lh *LoginHandler) LogoutHandle(w http.ResponseWriter, r *http.Request) {
 	// Delete the cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:   "Authorization",
-		MaxAge: -1,
-	})
+	http.SetCookie(w,
+		&http.Cookie{
+			Name:     "Authorization",
+			Value:    "",
+			MaxAge:   -1,
+			SameSite: http.SameSiteLaxMode,
+			Path:     "/",
+			Expires:  time.Now().Add(-1 * time.Hour),
+			// Don't set Secure to true in development
+			Secure:   false,
+			HttpOnly: true,
+		},
+	)
 
-	w.Header().Add("HX-Redirect", "/login")
+	// w.Header().Add("HX-Redirect", "/login")
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
@@ -151,16 +164,19 @@ func (lh *LoginHandler) setAuthCookieAndRedirect(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// Set the token in the HTTPOnly cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:     "Authorization",
-		Value:    token,
-		MaxAge:   3600 * 24 * 7,
-		SameSite: http.SameSiteLaxMode,
-		// Don't set Secure to true in development
-		Secure:   false,
-		HttpOnly: true,
-	})
+	// Set the JWT token in the HTTPOnly cookie
+	http.SetCookie(w,
+		&http.Cookie{
+			Name:     "Authorization",
+			Value:    token,
+			MaxAge:   3600 * 24 * 7,
+			SameSite: http.SameSiteLaxMode,
+			Path:     "/",
+			// Don't set Secure to true in development
+			Secure:   false,
+			HttpOnly: true,
+		},
+	)
 
 	if redirectURL != "" {
 		w.Header().Add("HX-Redirect", redirectURL)

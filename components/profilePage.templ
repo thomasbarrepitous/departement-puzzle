@@ -1,0 +1,15 @@
+package components
+
+import (
+	"net/http"
+)
+
+templ ProfilePageComponent(r *http.Request) {
+	@BaseHead("Profile") {
+		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+		<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+	}
+	@BaseBody(r) {
+		"Hello World"
+	}
+}
