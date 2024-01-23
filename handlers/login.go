@@ -129,6 +129,7 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 
 	// Set the JWT token in the HTTPOnly cookie and redirect to the home page
 	lh.setAuthCookieAndRedirect(w, r, user, "")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
@@ -149,7 +150,6 @@ func (lh *LoginHandler) LogoutHandle(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 
-	// w.Header().Add("HX-Redirect", "/login")
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }

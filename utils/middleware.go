@@ -3,7 +3,6 @@ package utils
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -41,7 +40,6 @@ func JWTVerifyMiddleware(next http.Handler) http.Handler {
 	// Verify the token and call the next handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if the Authorization cookie is present
-		log.Print(r.Cookies())
 		authCookie, err := r.Cookie("Authorization")
 		if err != nil {
 			// Cookie is not present, return 403

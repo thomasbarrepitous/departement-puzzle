@@ -44,12 +44,21 @@ templ BaseLoggedInNavbar(r *http.Request) {
 			<div class="ml-4"></div>
 		</div>
 		<div class="flex items-center ml-auto">
-			<i data-feather="user" class="h-6 w-6 mr-2"></i>
-			<button hx-get="/profile" class="text-lg font-semibold ">Profile</button>
-		</div>
-		<div class="flex items-center ml-auto">
-			<i data-feather="log-out" class="h-6 w-6 mr-2"></i>
-			<a href="/api/auth/logout" class="text-lg font-semibold ">Log Out</a>
+			<div class="flex items-center">
+				<i data-feather="user" class="h-6 w-6 mr-2"></i>
+				<a href="/profile" class="text-lg font-semibold">
+					Profile
+				</a>
+			</div>
+			<!-- Visual Separation -->
+			<div class="h-6 mr-2 ml-4 border-l border-gray-600"></div>
+			<!-- Log Out Link -->
+			<div class="flex items-center ml-2">
+				<i data-feather="log-out" class="h-6 w-6 mr-2"></i>
+				<a href="/api/auth/logout" class="text-lg font-semibold">
+					Log Out
+				</a>
+			</div>
 		</div>
 	</nav>
 }
@@ -67,7 +76,9 @@ templ BaseLoggedOffNavbar() {
 		</div>
 		<div class="flex items-center ml-auto">
 			<i data-feather="log-in" class="h-6 w-6 mr-2"></i>
-			<a href="/login" class="text-lg font-semibold ">Log In</a>
+			<a href="/login" class="text-lg font-semibold">
+				Log In
+			</a>
 		</div>
 	</nav>
 }
