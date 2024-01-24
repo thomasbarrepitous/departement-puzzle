@@ -43,7 +43,9 @@ func NewRouter(db *sql.DB) *Router {
 
 	// Handle 404
 	notFoundHandler := &handlers.NotFoundHandler{}
-	r.HandleFunc("/404", notFoundHandler.RenderNotFoundPage)
+	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		notFoundHandler.RenderNotFoundPage(w, r)
+	})
 
 	// Login
 	loginHandler := &handlers.LoginHandler{Store: store}

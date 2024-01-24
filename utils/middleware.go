@@ -43,7 +43,8 @@ func JWTVerifyMiddleware(next http.Handler) http.Handler {
 		authCookie, err := r.Cookie("Authorization")
 		if err != nil {
 			// Cookie is not present, return 403
-			http.Error(w, "Cookie is not present", http.StatusForbidden)
+			// http.Error(w, "Cookie is not present", http.StatusForbidden)
+			http.Redirect(w, r, "/404", http.StatusSeeOther)
 			return
 		}
 
@@ -58,14 +59,16 @@ func JWTVerifyMiddleware(next http.Handler) http.Handler {
 		})
 		if err != nil {
 			// Token is invalid, return 403
-			http.Error(w, "Invalid token", http.StatusForbidden)
+			// http.Error(w, "Invalid token", http.StatusForbidden)
+			http.Redirect(w, r, "/404", http.StatusSeeOther)
 			return
 		}
 
 		// Check if the token claims are valid
 		if _, ok := token.Claims.(jwt.Claims); !ok && !token.Valid {
 			// Token is not valid, return 403
-			http.Error(w, "Token is not valid", http.StatusForbidden)
+			// http.Error(w, "Token is not valid", http.StatusForbidden)
+			http.Redirect(w, r, "/404", http.StatusSeeOther)
 			return
 		}
 
