@@ -41,6 +41,10 @@ func NewRouter(db *sql.DB) *Router {
 
 	// Non protected routes
 
+	// Handle 404
+	notFoundHandler := &handlers.NotFoundHandler{}
+	r.HandleFunc("/404", notFoundHandler.RenderNotFoundPage)
+
 	// Login
 	loginHandler := &handlers.LoginHandler{Store: store}
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
@@ -48,6 +52,11 @@ func NewRouter(db *sql.DB) *Router {
 	r.HandleFunc("/api/auth/google", loginHandler.GoogleLoginHandle).Methods("POST")
 	r.HandleFunc("/api/auth/google/callback", loginHandler.GoogleCallbackHandle)
 	r.HandleFunc("/api/auth/logout", loginHandler.LogoutHandle)
+
+	// Registration
+	registerHandler := &handlers.RegisterHandler{Store: store}
+	r.HandleFunc("/api/users", registerHandler.RegisterHandle).Methods("POST")
+	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
 
 	// Protected routes
 
@@ -64,11 +73,6 @@ func NewRouter(db *sql.DB) *Router {
 	apiRouter.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
 	apiRouter.HandleFunc("/users/{id}", userHandler.GetUserByID).Methods("GET")
 
-	// Registration
-	registerHandler := &handlers.RegisterHandler{Store: store}
-	apiRouter.HandleFunc("/users", registerHandler.RegisterHandle).Methods("POST")
-	protectedRouter.HandleFunc("/register", registerHandler.RenderRegisterPage)
-
 	// Profile
 	profileHandler := &handlers.ProfileHandler{Store: store}
 	protectedRouter.HandleFunc("/profile", profileHandler.RenderProfilePage)
@@ -81,9 +85,6 @@ func NewRouter(db *sql.DB) *Router {
 	// Load our assets (css, js, images, etc.)
 	staticRoute := http.StripPrefix("/static/", http.FileServer(neuteredFileSystem{http.Dir("./static")}))
 	r.PathPrefix("/static/").Handler(staticRoute)
-
-	// Handle 404
-	// r.HandleFunc("/404", templ.Handler(notFoundComponent(), templ.WithStatus(http.StatusNotFound)))
 
 	// Game related routes
 	gameHandler := &handlers.GameHandler{}

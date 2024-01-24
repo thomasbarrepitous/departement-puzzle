@@ -20,7 +20,7 @@ type LoginHandler struct {
 }
 
 type LoginRequest struct {
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -46,13 +46,14 @@ func (lh *LoginHandler) JWTLoginHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, wrongUsernameErr := lh.Store.GetUserByUsername(loginRequest.Username)
-	if wrongUsernameErr != nil {
+	user, wrongEmailPassword := lh.Store.GetUserByEmail(loginRequest.Email)
+	if wrongEmailPassword != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	wrongPasswordErr := user.CheckPassword(loginRequest.Password)
+	log.Print(wrongPasswordErr)
 	if wrongPasswordErr != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
