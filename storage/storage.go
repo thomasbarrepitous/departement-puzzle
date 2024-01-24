@@ -1,19 +1,28 @@
 package storage
 
-import "departement/models"
+import (
+	"context"
+	"departement/models"
+)
+
+// Storage is an interface that wraps all the storage methods
+type Storage interface {
+	UserStorage
+	RankingStorage
+}
 
 type UserStorage interface {
 	// GetAllUsers retrieves all users from the database
-	GetAllUsers() ([]models.User, error)
+	GetAllUsers(ctx context.Context) ([]models.User, error)
 
 	// GetUserByEmail retrieves a user from the database by email
-	GetUserByEmail(email string) (models.User, error)
+	GetUserByEmail(ctx context.Context, email string) (models.User, error)
 
 	// GetUserByUsername retrieves a user from the database by username
-	GetUserByUsername(username string) (models.User, error)
+	GetUserByUsername(ctx context.Context, username string) (models.User, error)
 
 	// CreateUser creates a new user in the database
-	CreateUser(user models.User) (models.User, error)
+	CreateUser(ctx context.Context, user models.User) (models.User, error)
 }
 
 type RankingStorage interface {

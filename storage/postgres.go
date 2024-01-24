@@ -1,8 +1,11 @@
 package storage
 
 import (
+	"context"
 	"database/sql"
+	"departement/db"
 	"departement/models"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -12,14 +15,22 @@ type PostgresStorage struct {
 	DB *sql.DB
 }
 
-func NewPostgresStorage(db *sql.DB) *PostgresStorage {
+// TODO : Transform this into a singleton
+func NewPostgresStorage() *PostgresStorage {
+	// Initialize the postgres database
+	postgresDB, err := db.ConnectDB(*db.NewGameConfig())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer postgresDB.Close()
+
 	return &PostgresStorage{
-		DB: db,
+		DB: postgresDB,
 	}
 }
 
 // GetAllUsers retrieves all users from the database
-func (ps *PostgresStorage) GetAllUsers() ([]models.User, error) {
+func (ps *PostgresStorage) GetAllUsers(ctx context.Context) ([]models.User, error) {
 	rows, err := ps.DB.Query("SELECT * FROM users")
 	if err != nil {
 		return nil, err
@@ -42,7 +53,7 @@ func (ps *PostgresStorage) GetAllUsers() ([]models.User, error) {
 }
 
 // GetUserByEmail retrieves a user from the database by email
-func (ps *PostgresStorage) GetUserByEmail(email string) (models.User, error) {
+func (ps *PostgresStorage) GetUserByEmail(ctx context.Context, email string) (models.User, error) {
 	query := "SELECT id, username, email, password FROM users WHERE email = $1"
 	row := ps.DB.QueryRow(query, email)
 
@@ -52,7 +63,7 @@ func (ps *PostgresStorage) GetUserByEmail(email string) (models.User, error) {
 }
 
 // GetUserByUsername retrieves a user from the database by username
-func (ps *PostgresStorage) GetUserByUsername(username string) (models.User, error) {
+func (ps *PostgresStorage) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	query := "SELECT id, username, email, password FROM users WHERE username = $1"
 	row := ps.DB.QueryRow(query, username)
 
@@ -62,7 +73,7 @@ func (ps *PostgresStorage) GetUserByUsername(username string) (models.User, erro
 }
 
 // CreateUser creates a new user in the database
-func (ps *PostgresStorage) CreateUser(user models.User) (models.User, error) {
+func (ps *PostgresStorage) CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	query := "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id"
 	row := ps.DB.QueryRow(query, user.Username, user.Email, user.Password)
 

@@ -46,7 +46,7 @@ func (lh *LoginHandler) JWTLoginHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, wrongEmailPassword := lh.Store.GetUserByEmail(loginRequest.Email)
+	user, wrongEmailPassword := lh.Store.GetUserByEmail(r.Context(), loginRequest.Email)
 	if wrongEmailPassword != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
@@ -104,18 +104,19 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Check if the user is already in the database
-	user, err := lh.Store.GetUserByEmail(profile.Email)
+	user, err := lh.Store.GetUserByEmail(r.Context(), profile.Email)
 	if err != nil {
 		// If the user is not in the database, create it
 		if err == sql.ErrNoRows {
 			// Create the user
 			log.Print("User not found, creating it")
-			user, err = lh.Store.CreateUser(models.User{
-				Username: profile.Name,
-				Email:    profile.Email,
-				// TODO: Generate a random password
-				Password: "",
-			})
+			user, err = lh.Store.CreateUser(r.Context(),
+				models.User{
+					Username: profile.Name,
+					Email:    profile.Email,
+					// TODO: Generate a random password
+					Password: "",
+				})
 			if err != nil {
 				log.Print(err.Error())
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

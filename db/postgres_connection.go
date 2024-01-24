@@ -7,7 +7,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func ConnectDB(config DBConfig) (*sql.DB, error) {
+func ConnectDB(config GameConfig) (*sql.DB, error) {
 	// Database connection string
 	// connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 	connStr := fmt.Sprintf("%s://%s:%s@%s:%s/%s?sslmode=disable",

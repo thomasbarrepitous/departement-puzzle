@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-type DBConfig struct {
+type GameConfig struct {
 	host     string
 	port     string
 	username string
@@ -13,8 +13,8 @@ type DBConfig struct {
 	typeDB   string
 }
 
-func NewDBConfig() *DBConfig {
-	return &DBConfig{
+func NewGameConfig() *GameConfig {
+	return &GameConfig{
 		host:     os.Getenv("DB_HOST"),
 		port:     os.Getenv("DB_PORT"),
 		username: os.Getenv("DB_USER"),
@@ -24,26 +24,26 @@ func NewDBConfig() *DBConfig {
 	}
 }
 
-func (c *DBConfig) GetHost() string {
+func (c *GameConfig) GetHost() string {
 	return c.host
 }
 
-func (c *DBConfig) GetPort() string {
+func (c *GameConfig) GetPort() string {
 	return c.port
 }
 
-func (c *DBConfig) GetUsername() string {
+func (c *GameConfig) GetUsername() string {
 	return c.username
 }
 
-func (c *DBConfig) GetPassword() string {
+func (c *GameConfig) GetPassword() string {
 	return c.password
 }
 
-func (c *DBConfig) GetDatabase() string {
+func (c *GameConfig) GetDatabase() string {
 	return c.database
 }
 
-func (c *DBConfig) GetTypeDB() string {
+func (c *GameConfig) GetTypeDB() string {
 	return c.typeDB
 }

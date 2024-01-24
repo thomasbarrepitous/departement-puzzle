@@ -1,8 +1,7 @@
 package main
 
 import (
-	"database/sql"
-	"departement/db"
+	"context"
 	"departement/handlers"
 	"departement/storage"
 	"departement/utils"
@@ -19,7 +18,8 @@ type Server struct {
 	Server *http.Server
 }
 
-func NewServer(listenAddr string, r *mux.Router) *Server {
+func NewServer(listenAddr string, ctx context.Context) *Server {
+	r := NewRouter(ctx).Router
 	return &Server{
 		Server: &http.Server{
 			Addr:         listenAddr,
@@ -34,10 +34,12 @@ type Router struct {
 	Router *mux.Router
 }
 
-func NewRouter(db *sql.DB) *Router {
-	store := storage.NewPostgresStorage(db)
-
+func NewRouter(ctx context.Context) *Router {
 	r := mux.NewRouter()
+
+	// Initialize our storages
+	store := storage.NewPostgresStorage()
+	authStore := storage.NewFirebaseStorage(ctx)
 
 	// Non protected routes
 
@@ -56,7 +58,7 @@ func NewRouter(db *sql.DB) *Router {
 	r.HandleFunc("/api/auth/logout", loginHandler.LogoutHandle)
 
 	// Registration
-	registerHandler := &handlers.RegisterHandler{Store: store}
+	registerHandler := &handlers.RegisterHandler{Store: authStore}
 	r.HandleFunc("/api/users", registerHandler.RegisterHandle).Methods("POST")
 	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
 
@@ -102,19 +104,11 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Initialize the database
-	db, err := db.ConnectDB(*db.NewDBConfig())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	// Initialize the router
-	r := NewRouter(db)
+	var ctx context.Context
 
 	port := ":3000"
 	log.Print("Listening on port ", port)
-	s := NewServer(port, r.Router)
+	s := NewServer(port, ctx)
 	log.Fatal(s.Server.ListenAndServe())
 }
 

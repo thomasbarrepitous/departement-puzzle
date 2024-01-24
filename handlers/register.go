@@ -33,7 +33,7 @@ func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request
 	// Create the user in the database
 	// We reinitialize the user struct to hash the password
 	// As the New() function is not called when unmarshalling the JSON
-	user, dbErr := rh.Store.CreateUser(models.NewUser(user.Username, user.Password, user.Email))
+	user, dbErr := rh.Store.CreateUser(r.Context(), models.NewUser(user.Username, user.Password, user.Email))
 	if dbErr != nil {
 		log.Print(dbErr.Error())
 		utils.JSONRespond(w, http.StatusInternalServerError, dbErr)
