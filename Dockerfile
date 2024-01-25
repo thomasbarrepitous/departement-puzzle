@@ -7,6 +7,16 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . .
 
+# Install templ tool
+RUN go install github.com/a-h/templ/cmd/templ@latest
+
+# Generate the Go files from the .templ
+RUN templ generate
+
+# Download all the dependencies
+RUN go mod tidy
+RUN go mod download
+
 # Build the Go application
 RUN go build -o main .
 

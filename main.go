@@ -70,11 +70,11 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 
 	// Create subrouter for our protected routes
 	protectedRouter := r.PathPrefix("/").Subrouter()
-	protectedRouter.Use(utils.JWTVerifyMiddleware)
+	// protectedRouter.Use(utils.JWTVerifyMiddleware)
 
 	// Create subrouter for our API routes
 	apiRouter := r.PathPrefix("/api").Subrouter()
-	apiRouter.Use(utils.JWTVerifyMiddleware)
+	// apiRouter.Use(utils.JWTVerifyMiddleware)
 
 	// Users
 	userHandler := &handlers.UserHandler{Store: store}
