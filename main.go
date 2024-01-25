@@ -18,8 +18,8 @@ type Server struct {
 	Server *http.Server
 }
 
-func NewServer(listenAddr string, ctx context.Context) *Server {
-	r := NewRouter(ctx).Router
+func NewServer(listenAddr string, ctx context.Context, storage storage.Storage) *Server {
+	r := NewRouter(ctx, storage).Router
 	return &Server{
 		Server: &http.Server{
 			Addr:         listenAddr,
@@ -34,31 +34,35 @@ type Router struct {
 	Router *mux.Router
 }
 
-func NewRouter(ctx context.Context) *Router {
+func NewRouter(ctx context.Context, store storage.Storage) *Router {
 	r := mux.NewRouter()
 
-	// Initialize our storages
-	store := storage.NewPostgresStorage()
-	authStore := storage.NewFirebaseStorage(ctx)
+	// TODO: Implement OAuth2 with Firebase ?
+	// If so, refactor since it's probably not a "storage"
+	// but rather a "service"
+	// authStore := storage.NewFirebaseStorage(ctx)
 
 	// Non protected routes
 
+	// Home
+	homeHandler := &handlers.HomeHandler{}
+	r.HandleFunc("/", homeHandler.RenderHomePage)
+
 	// Handle 404
 	notFoundHandler := &handlers.NotFoundHandler{}
-	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		notFoundHandler.RenderNotFoundPage(w, r)
-	})
+	r.NotFoundHandler = http.HandlerFunc(notFoundHandler.RenderNotFoundPage)
+	r.HandleFunc("/404", notFoundHandler.RenderNotFoundPage)
 
 	// Login
 	loginHandler := &handlers.LoginHandler{Store: store}
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
-	r.HandleFunc("/api/auth/login", loginHandler.JWTLoginHandle).Methods("POST")
+	r.HandleFunc("/api/auth/login", loginHandler.EmailLoginHandle).Methods("POST")
 	r.HandleFunc("/api/auth/google", loginHandler.GoogleLoginHandle).Methods("POST")
 	r.HandleFunc("/api/auth/google/callback", loginHandler.GoogleCallbackHandle)
 	r.HandleFunc("/api/auth/logout", loginHandler.LogoutHandle)
 
 	// Registration
-	registerHandler := &handlers.RegisterHandler{Store: authStore}
+	registerHandler := &handlers.RegisterHandler{Store: store}
 	r.HandleFunc("/api/users", registerHandler.RegisterHandle).Methods("POST")
 	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
 
@@ -92,7 +96,7 @@ func NewRouter(ctx context.Context) *Router {
 
 	// Game related routes
 	gameHandler := &handlers.GameHandler{}
-	protectedRouter.HandleFunc("/", gameHandler.RenderGamePage)
+	protectedRouter.HandleFunc("/departement", gameHandler.RenderGamePage)
 
 	return &Router{r}
 }
@@ -104,11 +108,14 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	var ctx context.Context
+	// Initialize the postgres database
+	store := storage.NewPostgresStorage()
+
+	defer store.DB.Close()
 
 	port := ":3000"
 	log.Print("Listening on port ", port)
-	s := NewServer(port, ctx)
+	s := NewServer(port, context.Background(), store)
 	log.Fatal(s.Server.ListenAndServe())
 }
 

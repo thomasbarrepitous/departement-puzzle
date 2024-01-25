@@ -46,6 +46,7 @@ func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Add("HX-Redirect", "/login")
+	// http.Redirect(w, r, "/login", http.StatusFound)
 	utils.JSONRespond(w, http.StatusOK, userResponse)
 }
 

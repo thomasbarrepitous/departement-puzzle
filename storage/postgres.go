@@ -22,7 +22,6 @@ func NewPostgresStorage() *PostgresStorage {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer postgresDB.Close()
 
 	return &PostgresStorage{
 		DB: postgresDB,

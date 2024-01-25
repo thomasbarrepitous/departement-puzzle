@@ -1,0 +1,66 @@
+package components
+
+import (
+	"net/http"
+)
+
+templ HomePageComponent(r *http.Request) {
+	@BaseHead("Home Page") {
+		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+	}
+	<body class="bg-gradient-animate h-screen flex items-center justify-center text-white">
+		<div class="text-center opacity-0" id="content">
+			<h1 class="text-5xl font-bold mb-4">Thomas Barré-Pitous</h1>
+			<p class="text-lg mb-8">Coding without style and fashion since 98'.</p>
+			<a href="/game" class="bg-white outline outline-transparent text-gray-500 hover:bg-transparent hover:text-white hover:outline-white font-bold py-2 px-4 rounded-full inline-block">
+				Explore Now
+			</a>
+		</div>
+		<script>
+        // Add the fade-in effect when the content is in view
+        document.addEventListener('DOMContentLoaded', function() {
+            const content = document.getElementById('content');
+            content.style.opacity = 1;
+        });
+    </script>
+		<style>
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 0%;
+            }
+            25% {
+                background-position: 100% 0%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+            75% {
+                background-position: 0% 100%;
+            }
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+        .bg-gradient-animate {
+            background: linear-gradient(-45deg, #607D8B, #B0BEC5, #263238, #546E7A, #37474F);
+            background-size: 600% 600%;
+            animation: gradientShift 95s ease infinite;
+        }
+
+        /* Add fade-in animation */
+        #content {
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+	</body>
+}

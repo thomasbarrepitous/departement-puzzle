@@ -1,8 +1,6 @@
 package db
 
-import (
-	"os"
-)
+import "os"
 
 type AuthConfig struct {
 	apiKey            string

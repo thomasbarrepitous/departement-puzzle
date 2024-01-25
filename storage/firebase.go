@@ -7,15 +7,17 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
+	"google.golang.org/api/option"
 )
 
 type FirebaseStorage struct {
-	AuthClient *auth.Client
+	Auth *auth.Client
 }
 
 func NewFirebaseStorage(ctx context.Context) *FirebaseStorage {
+	opt := option.WithCredentialsFile("firebase.json")
 	// Initialize the firebase app
-	app, err := firebase.NewApp(ctx, nil)
+	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
 	}
@@ -25,12 +27,12 @@ func NewFirebaseStorage(ctx context.Context) *FirebaseStorage {
 		log.Fatalf("error getting Auth client: %v\n", err)
 	}
 	return &FirebaseStorage{
-		AuthClient: authClient,
+		Auth: authClient,
 	}
 }
 
 func (s *FirebaseStorage) GetUserByEmail(ctx context.Context, email string) (models.User, error) {
-	user, err := s.AuthClient.GetUserByEmail(ctx, email)
+	user, err := s.Auth.GetUserByEmail(ctx, email)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -42,7 +44,7 @@ func (s *FirebaseStorage) GetUserByEmail(ctx context.Context, email string) (mod
 }
 
 func (s *FirebaseStorage) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
-	user, err := s.AuthClient.GetUserByEmail(ctx, username)
+	user, err := s.Auth.GetUserByEmail(ctx, username)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -61,7 +63,7 @@ func (s *FirebaseStorage) CreateUser(ctx context.Context, user models.User) (mod
 		DisplayName(user.Username).
 		Disabled(false)
 
-	u, err := s.AuthClient.CreateUser(ctx, params)
+	u, err := s.Auth.CreateUser(ctx, params)
 	if err != nil {
 		return models.User{}, err
 	}

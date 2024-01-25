@@ -31,7 +31,7 @@ func (lh *LoginHandler) RenderLoginPage(w http.ResponseWriter, r *http.Request) 
 }
 
 // Handle the login submission
-func (lh *LoginHandler) JWTLoginHandle(w http.ResponseWriter, r *http.Request) {
+func (lh *LoginHandler) EmailLoginHandle(w http.ResponseWriter, r *http.Request) {
 	loginRequest := LoginRequest{}
 	// Decode the request body into the user struct
 	decodeErr := utils.DecodeJSONBody(w, r, &loginRequest)
@@ -46,11 +46,14 @@ func (lh *LoginHandler) JWTLoginHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if the user is in the database
 	user, wrongEmailPassword := lh.Store.GetUserByEmail(r.Context(), loginRequest.Email)
 	if wrongEmailPassword != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
+
+	log.Printf("%+v\n", user)
 
 	wrongPasswordErr := user.CheckPassword(loginRequest.Password)
 	log.Print(wrongPasswordErr)
@@ -59,7 +62,7 @@ func (lh *LoginHandler) JWTLoginHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lh.setAuthCookieAndRedirect(w, r, user, "/")
+	lh.setAuthCookie(w, r, user)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
@@ -130,8 +133,8 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Set the JWT token in the HTTPOnly cookie and redirect to the home page
-	lh.setAuthCookieAndRedirect(w, r, user, "")
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	lh.setAuthCookie(w, r, user)
+	http.Redirect(w, r, "/", http.StatusFound)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
@@ -152,12 +155,13 @@ func (lh *LoginHandler) LogoutHandle(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	// Redirect to the login page
+	http.Redirect(w, r, "/login", http.StatusFound)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
 // Set the JWT token in the HTTPOnly cookie and redirect to the callback URL
-func (lh *LoginHandler) setAuthCookieAndRedirect(w http.ResponseWriter, r *http.Request, user models.User, redirectURL string) {
+func (lh *LoginHandler) setAuthCookie(w http.ResponseWriter, r *http.Request, user models.User) {
 	// Create a JWT token
 	token, tokenErr := utils.CreateJWT(user.ID)
 	if tokenErr != nil {
@@ -179,8 +183,4 @@ func (lh *LoginHandler) setAuthCookieAndRedirect(w http.ResponseWriter, r *http.
 			HttpOnly: true,
 		},
 	)
-
-	if redirectURL != "" {
-		w.Header().Add("HX-Redirect", redirectURL)
-	}
 }
