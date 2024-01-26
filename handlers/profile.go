@@ -7,7 +7,7 @@ import (
 )
 
 type ProfileHandler struct {
-	Store storage.UserStorage
+	Store storage.ProfileStorage
 }
 
 func (ph *ProfileHandler) RenderProfilePage(w http.ResponseWriter, r *http.Request) {
