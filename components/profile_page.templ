@@ -2,10 +2,11 @@ package components
 
 import (
 	"net/http"
+	"departement/models"
 )
 
-templ ProfilePageComponent(r *http.Request) {
-	@BaseHead("Profile") {
+templ ProfilePageComponent(r *http.Request, profile *models.Profile) {
+	@BaseHead(profile.Username) {
 		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
 		<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
 	}
@@ -16,54 +17,36 @@ templ ProfilePageComponent(r *http.Request) {
 					<img src="/avatar.png" alt="Player Avatar" class="w-14 h-14 rounded-full"/>
 				</div>
 				<div>
-					<h2 class="text-3xl font-bold mb-2">Player Name</h2>
-					<p class="text-sm">Level 5 Warrior</p>
-					<p class="text-sm">Experience: 3500</p>
+					<h2 class="text-3xl font-bold mb-2">{ profile.Username }</h2>
+					<p class="text-sm">{ profile.Country }</p>
+					<p class="text-sm">{ profile.Description }</p>
 				</div>
 			</div>
 			<div class="grid grid-cols-3 gap-8 mt-8 mb-4 mx-auto">
 				<div class="text-center bg-gray-600 p-6 rounded-md shadow-md">
 					<h3 class="text-lg font-bold">Wins</h3>
-					<p class="text-3xl font-extrabold">42</p>
+					<p class="text-3xl font-extrabold">{ profile.GetWinNumber() }</p>
 				</div>
 				<div class="text-center bg-gray-600 p-6 rounded-md shadow-md">
 					<h3 class="text-lg font-bold">Best Score</h3>
-					<p class="text-3xl font-extrabold">1200</p>
+					<p class="text-3xl font-extrabold">{ profile.GetBestRanking().Score }</p>
 				</div>
 				<div class="text-center bg-gray-600 p-6 rounded-md shadow-md">
 					<h3 class="text-lg font-bold">Ranking</h3>
-					<p class="text-3xl font-extrabold">#15</p>
+					<p class="text-3xl font-extrabold">{ profile.GetBestRanking().Rank }</p>
 				</div>
 			</div>
 		</section>
 		<section class="container mx-auto mt-8 p-8 bg-gray-800 rounded-md shadow-lg text-center">
 			<h3 class="text-2xl font-bold mb-4">Top 5 Best Scores</h3>
 			<ul class="space-y-4">
-				<li class="bg-purple-700 py-3 px-6 rounded-md flex justify-between items-center shadow-md transition duration-300 transform hover:scale-105">
-					<span class="text-white font-semibold">1. Rank: #1</span>
-					<span class="text-white">Time: 1200s</span>
-					<span class="text-white font-semibold">Score: 1200</span>
-				</li>
-				<li class="bg-purple-600 py-3 px-6 rounded-md flex justify-between items-center shadow-md transition duration-300 transform hover:scale-105">
-					<span class="text-white font-semibold">2. Rank: #2</span>
-					<span class="text-white">Time: 1100s</span>
-					<span class="text-white font-semibold">Score: 1100</span>
-				</li>
-				<li class="bg-purple-500 py-3 px-6 rounded-md flex justify-between items-center shadow-md transition duration-300 transform hover:scale-105">
-					<span class="text-white font-semibold">3. Rank: #3</span>
-					<span class="text-white">Time: 1000s</span>
-					<span class="text-white font-semibold">Score: 1000</span>
-				</li>
-				<li class="bg-purple-400 py-3 px-6 rounded-md flex justify-between items-center shadow-md transition duration-300 transform hover:scale-105">
-					<span class="text-white font-semibold">4. Rank: #4</span>
-					<span class="text-white">Time: 950s</span>
-					<span class="text-white font-semibold">Score: 950</span>
-				</li>
-				<li class="bg-purple-300 py-3 px-6 rounded-md flex justify-between items-center shadow-md transition duration-300 transform hover:scale-105">
-					<span class="text-white font-semibold">5. Rank: #5</span>
-					<span class="text-white">Time: 900s</span>
-					<span class="text-white font-semibold">Score: 900</span>
-				</li>
+				for idx, ranking := range profile.GetBestRankings(5) {
+					<li class="bg-purple-700 py-3 px-6 rounded-md flex justify-between items-center shadow-md transition duration-300 transform hover:scale-105">
+						<span class="text-white font-semibold">{ idx }. Rank: { ranking.Rank } </span>
+						<span class="text-white">Time: { ranking.Time }</span>
+						<span class="text-white font-semibold">Score: { ranking.Score }</span>
+					</li>
+				}
 			</ul>
 		</section>
 	}

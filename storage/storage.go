@@ -29,10 +29,10 @@ type UserStorage interface {
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 
 	// UpdateUser updates a user in the database
-	UpdateUser(ctx context.Context, user models.User) (models.User, error)
+	UpdateUser(ctx context.Context, id int, user models.User) (models.User, error)
 
 	// DeleteUser deletes a user from the database
-	DeleteUser(ctx context.Context, user models.User) error
+	DeleteUser(ctx context.Context, id int) error
 }
 
 type ProfileStorage interface {
@@ -46,10 +46,10 @@ type ProfileStorage interface {
 	CreateProfile(profile models.Profile) (models.Profile, error)
 
 	// UpdateProfile updates a profile in the database
-	UpdateProfile(profile models.Profile) (models.Profile, error)
+	UpdateProfile(id int, profile models.Profile) (models.Profile, error)
 
 	// DeleteProfile deletes a profile from the database
-	DeleteProfile(profile models.Profile) error
+	DeleteProfile(id int) error
 }
 
 type RankingStorage interface {

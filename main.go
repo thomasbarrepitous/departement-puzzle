@@ -74,7 +74,7 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 
 	// Create subrouter for our API routes
 	apiRouter := r.PathPrefix("/api").Subrouter()
-	// apiRouter.Use(utils.JWTVerifyMiddleware)
+	apiRouter.Use(utils.JWTVerifyMiddleware)
 
 	// Users
 	userHandler := &handlers.UserHandler{Store: store}

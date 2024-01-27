@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS profile (
     email VARCHAR(100) NOT NULL,
     picture VARCHAR(100) NOT NULL,
     description VARCHAR(100) NOT NULL,
+    country VARCHAR(100) NOT NULL,
 );
 
 ALTER TABLE rankings

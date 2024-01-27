@@ -92,9 +92,9 @@ func (ps *PostgresStorage) CreateUser(ctx context.Context, user models.User) (mo
 }
 
 // UpdateUser updates a user in the database
-func (ps *PostgresStorage) UpdateUser(ctx context.Context, user models.User) (models.User, error) {
+func (ps *PostgresStorage) UpdateUser(ctx context.Context, id int, user models.User) (models.User, error) {
 	query := "UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4 RETURNING id"
-	row := ps.DB.QueryRow(query, user.Username, user.Email, user.Password, user.ID)
+	row := ps.DB.QueryRow(query, user.Username, user.Email, user.Password, id)
 
 	err := row.Scan(&user.ID)
 	return user, err
@@ -153,7 +153,7 @@ func (ps *PostgresStorage) GetProfileByUserID(userID int) (models.Profile, error
 }
 
 // UpdateProfile updates a profile in the database
-func (ps *PostgresStorage) UpdateProfile(profile models.Profile) (models.Profile, error) {
+func (ps *PostgresStorage) UpdateProfile(id int, profile models.Profile) (models.Profile, error) {
 	query := "UPDATE profiles SET username = $1, email = $2, picture = $3, description = $4 WHERE id = $5 RETURNING id"
 	row := ps.DB.QueryRow(query, profile.Username, profile.Email, profile.Picture, profile.Description, profile.ID)
 
@@ -174,6 +174,29 @@ func (ps *PostgresStorage) DeleteProfile(id int) error {
 // GetAllRankings retrieves all rankings from the database
 func (ps *PostgresStorage) GetAllRankings() ([]models.Ranking, error) {
 	rows, err := ps.DB.Query("SELECT * FROM rankings")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rankings []models.Ranking
+	for rows.Next() {
+		var ranking models.Ranking
+
+		err := rows.Scan(&ranking.ID, &ranking.UserID, &ranking.PointsScore, &ranking.TimeScore)
+		if err != nil {
+			return nil, err
+		}
+
+		rankings = append(rankings, ranking)
+	}
+
+	return rankings, nil
+}
+
+// GetAllRankingsByUserID retrieves all rankings from the database by user ID
+func (ps *PostgresStorage) GetAllRankingsByUserID(userID int) ([]models.Ranking, error) {
+	rows, err := ps.DB.Query("SELECT * FROM rankings WHERE user_id = $1", userID)
 	if err != nil {
 		return nil, err
 	}

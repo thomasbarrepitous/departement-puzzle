@@ -53,16 +53,14 @@ func (lh *LoginHandler) EmailLoginHandle(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	log.Printf("%+v\n", user)
-
 	wrongPasswordErr := user.CheckPassword(loginRequest.Password)
-	log.Print(wrongPasswordErr)
 	if wrongPasswordErr != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	lh.setAuthCookie(w, r, user)
+	w.Header().Add("HX-Redirect", "/profile")
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 

@@ -7,4 +7,5 @@ type Profile struct {
 	Email       string `json:"email"`
 	Picture     string `json:"picture"`
 	Description string `json:"description"`
+	Country     string `json:"country"`
 }
