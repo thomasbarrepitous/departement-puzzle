@@ -54,7 +54,7 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 	r.HandleFunc("/404", notFoundHandler.RenderNotFoundPage)
 
 	// Login
-	loginHandler := &handlers.LoginHandler{Store: store}
+	loginHandler := &handlers.LoginHandler{UserStore: store}
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
 	r.HandleFunc("/api/auth/login", loginHandler.EmailLoginHandle).Methods("POST")
 	r.HandleFunc("/api/auth/google", loginHandler.GoogleLoginHandle).Methods("POST")
@@ -62,7 +62,7 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 	r.HandleFunc("/api/auth/logout", loginHandler.LogoutHandle)
 
 	// Registration
-	registerHandler := &handlers.RegisterHandler{Store: store}
+	registerHandler := &handlers.RegisterHandler{UserStore: store, ProfileStore: store}
 	r.HandleFunc("/api/users", registerHandler.RegisterHandle).Methods("POST")
 	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
 
@@ -77,12 +77,12 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 	apiRouter.Use(utils.JWTVerifyMiddleware)
 
 	// Users
-	userHandler := &handlers.UserHandler{Store: store}
+	userHandler := &handlers.UserHandler{UserStore: store}
 	apiRouter.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
 	apiRouter.HandleFunc("/users/{id}", userHandler.GetUserByID).Methods("GET")
 
 	// Profile
-	profileHandler := &handlers.ProfileHandler{Store: store}
+	profileHandler := &handlers.ProfileHandler{ProfileStore: store}
 	protectedRouter.HandleFunc("/profile", profileHandler.RenderProfilePage)
 
 	// Rankings

@@ -11,7 +11,8 @@ import (
 )
 
 type RegisterHandler struct {
-	Store storage.UserStorage
+	UserStore    storage.UserStorage
+	ProfileStore storage.ProfileStorage
 }
 
 func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request) {
@@ -33,20 +34,29 @@ func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request
 	// Create the user in the database
 	// We reinitialize the user struct to hash the password
 	// As the New() function is not called when unmarshalling the JSON
-	user, dbErr := rh.Store.CreateUser(r.Context(), models.NewUser(user.Username, user.Password, user.Email))
+	user, dbErr := rh.UserStore.CreateUser(r.Context(), models.NewUser(user.Username, user.Password, user.Email))
 	if dbErr != nil {
 		log.Print(dbErr.Error())
 		utils.JSONRespond(w, http.StatusInternalServerError, dbErr)
 		return
 	}
 
+	// Create the profile in the database
+	_, dbErr = rh.ProfileStore.CreateProfile(r.Context(), models.NewProfile(user.ID, user.Username, user.Email))
+	if dbErr != nil {
+		log.Print(dbErr.Error())
+		utils.JSONRespond(w, http.StatusInternalServerError, dbErr)
+		return
+	}
+
+	// Create the user response
 	userResponse := models.UserResponse{
 		Username: user.Username,
 		Email:    user.Email,
 	}
 
+	// Client-side redirection
 	w.Header().Add("HX-Redirect", "/login")
-	// http.Redirect(w, r, "/login", http.StatusFound)
 	utils.JSONRespond(w, http.StatusOK, userResponse)
 }
 

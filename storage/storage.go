@@ -37,19 +37,19 @@ type UserStorage interface {
 
 type ProfileStorage interface {
 	// GetAllProfiles retrieves all profiles from the database
-	GetAllProfiles() ([]models.Profile, error)
+	GetAllProfiles(ctx context.Context) ([]models.Profile, error)
 
 	// GetProfileByUserID retrieves a profile from the database by ID
-	GetProfileByUserID(userID int) (models.Profile, error)
+	GetProfileByUserID(ctx context.Context, userID int) (models.Profile, error)
 
 	// CreateProfile creates a new profile in the database
-	CreateProfile(profile models.Profile) (models.Profile, error)
+	CreateProfile(ctx context.Context, profile models.Profile) (models.Profile, error)
 
 	// UpdateProfile updates a profile in the database
-	UpdateProfile(id int, profile models.Profile) (models.Profile, error)
+	UpdateProfile(ctx context.Context, id int, profile models.Profile) (models.Profile, error)
 
 	// DeleteProfile deletes a profile from the database
-	DeleteProfile(id int) error
+	DeleteProfile(ctx context.Context, id int) error
 }
 
 type RankingStorage interface {

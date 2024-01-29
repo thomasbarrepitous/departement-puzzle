@@ -14,12 +14,12 @@ import (
 
 // RankingHandler represents the controller for ranking-related operations
 type RankingHandler struct {
-	Store storage.RankingStorage
+	RankingStore storage.RankingStorage
 }
 
 // GetAllRankings handles the request to get all rankings
 func (rh *RankingHandler) GetAllRankings(w http.ResponseWriter, r *http.Request) {
-	rankings, err := rh.Store.GetAllRankings()
+	rankings, err := rh.RankingStore.GetAllRankings()
 	if err != nil {
 		utils.JSONRespond(w, http.StatusInternalServerError, err)
 		return
@@ -47,7 +47,7 @@ func (rh *RankingHandler) CreateRanking(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Insert the new ranking into the database
-	ranking, dbErr := rh.Store.CreateRanking(ranking)
+	ranking, dbErr := rh.RankingStore.CreateRanking(ranking)
 	if dbErr != nil {
 		utils.JSONRespond(w, http.StatusInternalServerError, dbErr)
 		return

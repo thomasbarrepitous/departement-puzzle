@@ -16,7 +16,7 @@ import (
 
 // LoginHandler is the handler for the login page
 type LoginHandler struct {
-	Store storage.UserStorage
+	UserStore storage.UserStorage
 }
 
 type LoginRequest struct {
@@ -47,7 +47,7 @@ func (lh *LoginHandler) EmailLoginHandle(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Check if the user is in the database
-	user, wrongEmailPassword := lh.Store.GetUserByEmail(r.Context(), loginRequest.Email)
+	user, wrongEmailPassword := lh.UserStore.GetUserByEmail(r.Context(), loginRequest.Email)
 	if wrongEmailPassword != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
@@ -105,13 +105,13 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Check if the user is already in the database
-	user, err := lh.Store.GetUserByEmail(r.Context(), profile.Email)
+	user, err := lh.UserStore.GetUserByEmail(r.Context(), profile.Email)
 	if err != nil {
 		// If the user is not in the database, create it
 		if err == sql.ErrNoRows {
 			// Create the user
 			log.Print("User not found, creating it")
-			user, err = lh.Store.CreateUser(r.Context(),
+			user, err = lh.UserStore.CreateUser(r.Context(),
 				models.User{
 					Username: profile.Name,
 					Email:    profile.Email,

@@ -11,12 +11,12 @@ import (
 
 // UserHandler represents the controller for user-related operations
 type UserHandler struct {
-	Store storage.UserStorage
+	UserStore storage.UserStorage
 }
 
 // GetAllUsers handles the request to get all users
 func (uh *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := uh.Store.GetAllUsers(r.Context())
+	users, err := uh.UserStore.GetAllUsers(r.Context())
 	if err != nil {
 		utils.JSONRespond(w, http.StatusInternalServerError, err)
 		return
@@ -32,7 +32,7 @@ func (uh *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	userID := vars["id"]
 
 	// Get the user from the database
-	user, err := uh.Store.GetUserByUsername(r.Context(), userID)
+	user, err := uh.UserStore.GetUserByUsername(r.Context(), userID)
 	if err != nil {
 		utils.JSONRespond(w, http.StatusInternalServerError, err)
 		return
