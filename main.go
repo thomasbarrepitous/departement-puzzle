@@ -7,6 +7,7 @@ import (
 	"departement/utils"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -18,7 +19,7 @@ type Server struct {
 	Server *http.Server
 }
 
-func NewServer(listenAddr string, ctx context.Context, storage storage.Storage) *Server {
+func NewServer(listenAddr string, ctx context.Context, storage *storage.Storage) *Server {
 	r := NewRouter(ctx, storage).Router
 	return &Server{
 		Server: &http.Server{
@@ -34,7 +35,7 @@ type Router struct {
 	Router *mux.Router
 }
 
-func NewRouter(ctx context.Context, store storage.Storage) *Router {
+func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 	r := mux.NewRouter()
 
 	// TODO: Implement OAuth2 with Firebase ?
@@ -42,19 +43,25 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 	// but rather a "service"
 	// authStore := storage.NewFirebaseStorage(ctx)
 
+	homeHandler := &handlers.HomeHandler{}
+	notFoundHandler := &handlers.NotFoundHandler{}
+	loginHandler := &handlers.LoginHandler{UserStore: store.Users}
+	rankingHandler := &handlers.RankingHandler{RankingStore: store.Rankings}
+	registerHandler := &handlers.RegisterHandler{UserStore: store.Users, ProfileStore: store.Profiles}
+	userHandler := &handlers.UserHandler{UserStore: store.Users}
+	profileHandler := &handlers.ProfileHandler{ProfileStore: store.Profiles}
+	gameHandler := &handlers.GameHandler{}
+
 	// Non protected routes
 
 	// Home
-	homeHandler := &handlers.HomeHandler{}
 	r.HandleFunc("/", homeHandler.RenderHomePage)
 
 	// Handle 404
-	notFoundHandler := &handlers.NotFoundHandler{}
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler.RenderNotFoundPage)
 	r.HandleFunc("/404", notFoundHandler.RenderNotFoundPage)
 
 	// Login
-	loginHandler := &handlers.LoginHandler{UserStore: store}
 	r.HandleFunc("/login", loginHandler.RenderLoginPage)
 	r.HandleFunc("/api/auth/login", loginHandler.EmailLoginHandle).Methods("POST")
 	r.HandleFunc("/api/auth/google", loginHandler.GoogleLoginHandle).Methods("POST")
@@ -62,7 +69,6 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 	r.HandleFunc("/api/auth/logout", loginHandler.LogoutHandle)
 
 	// Registration
-	registerHandler := &handlers.RegisterHandler{UserStore: store, ProfileStore: store}
 	r.HandleFunc("/api/users", registerHandler.RegisterHandle).Methods("POST")
 	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
 
@@ -77,16 +83,13 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 	apiRouter.Use(utils.JWTVerifyMiddleware)
 
 	// Users
-	userHandler := &handlers.UserHandler{UserStore: store}
 	apiRouter.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
 	apiRouter.HandleFunc("/users/{id}", userHandler.GetUserByID).Methods("GET")
 
 	// Profile
-	profileHandler := &handlers.ProfileHandler{ProfileStore: store}
 	protectedRouter.HandleFunc("/profile", profileHandler.RenderProfilePage)
 
 	// Rankings
-	rankingHandler := &handlers.RankingHandler{Store: store}
 	apiRouter.HandleFunc("/rankings", rankingHandler.GetAllRankings).Methods("GET")
 	apiRouter.HandleFunc("/rankings", rankingHandler.CreateRanking).Methods("POST")
 
@@ -95,7 +98,6 @@ func NewRouter(ctx context.Context, store storage.Storage) *Router {
 	r.PathPrefix("/static/").Handler(staticRoute)
 
 	// Game related routes
-	gameHandler := &handlers.GameHandler{}
 	protectedRouter.HandleFunc("/departement", gameHandler.RenderGamePage)
 
 	return &Router{r}
@@ -109,9 +111,9 @@ func main() {
 	}
 
 	// Initialize the postgres database
-	store := storage.NewPostgresStorage()
+	store := storage.NewStorage(os.Getenv("ENV_TYPE"))
 
-	defer store.DB.Close()
+	// defer store.DB.Close()
 
 	port := ":3000"
 	log.Print("Listening on port ", port)

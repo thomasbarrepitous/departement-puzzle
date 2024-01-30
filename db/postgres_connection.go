@@ -7,9 +7,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func ConnectDB(config GameConfig) (*sql.DB, error) {
+// ConnectDB connects to the database and returns a database connection
+// It opens as many connections as the number of storages declated
+// which is really bad but I wanted to create something modular similar
+// to big projects with different DB
+// I will probably refactor this into a singleton anyway in the future.
+func ConnectDB(config PostgresConfig) (*sql.DB, error) {
 	// Database connection string
-	// connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 	connStr := fmt.Sprintf("%s://%s:%s@%s:%s/%s?sslmode=disable",
 		config.GetTypeDB(),
 		config.GetUsername(),
@@ -18,6 +22,7 @@ func ConnectDB(config GameConfig) (*sql.DB, error) {
 		config.GetPort(),
 		config.GetDatabase(),
 	)
+
 	// Open a connection to the database
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

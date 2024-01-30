@@ -5,13 +5,38 @@ import (
 	"departement/models"
 )
 
-// Storage is an interface that wraps all the storage methods
-type Storage interface {
+// IStorage is an interface that wraps all the storage methods
+type IStorage interface {
 	UserStorage
 	RankingStorage
 	ProfileStorage
 }
 
+// Storage is a struct that wraps all the storage methods
+type Storage struct {
+	Users    UserStorage
+	Rankings RankingStorage
+	Profiles ProfileStorage
+}
+
+func NewStorage(env string) *Storage {
+	switch env {
+	case "dev":
+		return &Storage{
+			Users:    NewPostgresUserStorage(),
+			Rankings: NewPostgresRankingStorage(),
+			Profiles: NewPostgresProfileStorage(),
+		}
+	default:
+		return &Storage{
+			Users:    NewPostgresUserStorage(),
+			Rankings: NewPostgresRankingStorage(),
+			Profiles: NewPostgresProfileStorage(),
+		}
+	}
+}
+
+// UserStorage is an interface that wraps all the user storage methods
 type UserStorage interface {
 	// GetAllUsers retrieves all users from the database
 	GetAllUsers(ctx context.Context) ([]models.User, error)
@@ -35,6 +60,7 @@ type UserStorage interface {
 	DeleteUser(ctx context.Context, id int) error
 }
 
+// ProfileStorage is an interface that wraps all the profile storage methods
 type ProfileStorage interface {
 	// GetAllProfiles retrieves all profiles from the database
 	GetAllProfiles(ctx context.Context) ([]models.Profile, error)
@@ -52,6 +78,7 @@ type ProfileStorage interface {
 	DeleteProfile(ctx context.Context, id int) error
 }
 
+// RankingStorage is an interface that wraps all the ranking storage methods
 type RankingStorage interface {
 	// GetAllRankings retrieves all rankings from the database
 	GetAllRankings() ([]models.Ranking, error)

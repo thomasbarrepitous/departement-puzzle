@@ -11,6 +11,10 @@ type ProfileHandler struct {
 }
 
 func (ph *ProfileHandler) RenderProfilePage(w http.ResponseWriter, r *http.Request) {
-	component := components.ProfilePageComponent(r)
+	// Get the profile from the database
+	profile, err := ph.ProfileStore.GetProfileByUserID(r.Context(), 1)
+	if err != nil {
+	}
+	component := components.ProfilePageComponent(r, &profile, nil)
 	component.Render(r.Context(), w)
 }
