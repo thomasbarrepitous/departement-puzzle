@@ -81,14 +81,13 @@ type ProfileStorage interface {
 // RankingStorage is an interface that wraps all the ranking storage methods
 type RankingStorage interface {
 	// GetAllRankings retrieves all rankings from the database
-	GetAllRankings() ([]models.Ranking, error)
+	// If the user has no rankings, an empty slice is returned
+	GetAllRankings(ctx context.Context) ([]models.Ranking, error)
 
 	// GetAllRankingsByUserID retrieves all rankings from the database by user ID
-	GetAllRankingsByUserID(userID int) ([]models.Ranking, error)
-
-	// GetRankingByUserID retrieves a ranking from the database by ID
-	GetRankingByUserID(userID int) (models.Ranking, error)
+	// If the user has no rankings, an empty slice is returned
+	GetAllRankingsByUserID(ctx context.Context, userID int) ([]models.Ranking, error)
 
 	// CreateRanking creates a new ranking in the database
-	CreateRanking(ranking models.Ranking) (models.Ranking, error)
+	CreateRanking(ctx context.Context, ranking models.Ranking) (models.Ranking, error)
 }

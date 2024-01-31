@@ -10,10 +10,13 @@ type Profile struct {
 	Country     string `json:"country"`
 }
 
-func NewProfile(userID int, username string, email string) Profile {
+func NewProfile(userID int, username string, email string, picture string, description string, country string) Profile {
 	return Profile{
-		UserID:   userID,
-		Username: username,
-		Email:    email,
+		UserID:      userID,
+		Username:    username,
+		Email:       email,
+		Picture:     picture,
+		Description: description,
+		Country:     country,
 	}
 }

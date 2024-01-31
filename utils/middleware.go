@@ -36,6 +36,7 @@ func CreateJWT(userID int) (string, error) {
 	return token, nil
 }
 
+// Authentication middleware
 func JWTVerifyMiddleware(next http.Handler) http.Handler {
 	// Verify the token and call the next handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

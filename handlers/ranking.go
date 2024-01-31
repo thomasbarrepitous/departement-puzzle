@@ -19,7 +19,7 @@ type RankingHandler struct {
 
 // GetAllRankings handles the request to get all rankings
 func (rh *RankingHandler) GetAllRankings(w http.ResponseWriter, r *http.Request) {
-	rankings, err := rh.RankingStore.GetAllRankings()
+	rankings, err := rh.RankingStore.GetAllRankings(r.Context())
 	if err != nil {
 		utils.JSONRespond(w, http.StatusInternalServerError, err)
 		return
@@ -47,7 +47,7 @@ func (rh *RankingHandler) CreateRanking(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Insert the new ranking into the database
-	ranking, dbErr := rh.RankingStore.CreateRanking(ranking)
+	ranking, dbErr := rh.RankingStore.CreateRanking(r.Context(), ranking)
 	if dbErr != nil {
 		utils.JSONRespond(w, http.StatusInternalServerError, dbErr)
 		return

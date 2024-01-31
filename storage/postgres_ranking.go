@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"database/sql"
 	"departement/db"
 	"departement/models"
@@ -31,7 +32,7 @@ func NewPostgresRankingStorage() *PostgresRankingStorage {
 // Rankings
 
 // GetAllRankings retrieves all rankings from the database
-func (prs *PostgresRankingStorage) GetAllRankings() ([]models.Ranking, error) {
+func (prs *PostgresRankingStorage) GetAllRankings(ctx context.Context) ([]models.Ranking, error) {
 	rows, err := prs.DB.Query("SELECT * FROM rankings")
 	if err != nil {
 		return nil, err
@@ -50,11 +51,15 @@ func (prs *PostgresRankingStorage) GetAllRankings() ([]models.Ranking, error) {
 		rankings = append(rankings, ranking)
 	}
 
+	if rankings == nil {
+		return []models.Ranking{}, nil
+	}
+
 	return rankings, nil
 }
 
 // GetAllRankingsByUserID retrieves all rankings from the database by user ID
-func (prs *PostgresRankingStorage) GetAllRankingsByUserID(userID int) ([]models.Ranking, error) {
+func (prs *PostgresRankingStorage) GetAllRankingsByUserID(ctx context.Context, userID int) ([]models.Ranking, error) {
 	rows, err := prs.DB.Query("SELECT * FROM rankings WHERE user_id = $1", userID)
 	if err != nil {
 		return nil, err
@@ -73,24 +78,18 @@ func (prs *PostgresRankingStorage) GetAllRankingsByUserID(userID int) ([]models.
 		rankings = append(rankings, ranking)
 	}
 
+	if rankings == nil {
+		return []models.Ranking{}, nil
+	}
+
 	return rankings, nil
 }
 
-// CreateRanking creates a new ranking in the database
-func (prs *PostgresRankingStorage) CreateRanking(ranking models.Ranking) (models.Ranking, error) {
+// CreateRanking creates a new ranking entry in the database
+func (prs *PostgresRankingStorage) CreateRanking(ctx context.Context, ranking models.Ranking) (models.Ranking, error) {
 	query := "INSERT INTO rankings (id, user_id, points_score, time_score, total_score) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 	row := prs.DB.QueryRow(query, ranking.ID, ranking.UserID, ranking.PointsScore, ranking.TimeScore, ranking.TotalScore)
 
 	err := row.Scan(&ranking.ID)
-	return ranking, err
-}
-
-// GetRankingByID retrieves a ranking from the database by ID
-func (prs *PostgresRankingStorage) GetRankingByUserID(userID int) (models.Ranking, error) {
-	query := "SELECT id, user_id, points_score, time_score, total_score FROM rankings WHERE user_id = $1"
-	row := prs.DB.QueryRow(query, userID)
-
-	var ranking models.Ranking
-	err := row.Scan(&ranking.ID, &ranking.UserID, &ranking.PointsScore, &ranking.TimeScore, &ranking.TotalScore)
 	return ranking, err
 }

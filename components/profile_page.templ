@@ -6,7 +6,7 @@ import (
 	"departement/models"
 )
 
-templ ProfilePageComponent(r *http.Request, profile *models.Profile, bestRankings []models.Ranking) {
+templ ProfilePageComponent(r *http.Request, profile *models.Profile, rankings *[]models.Ranking) {
 	@BaseHead(profile.Username) {
 		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
 		<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
@@ -26,27 +26,42 @@ templ ProfilePageComponent(r *http.Request, profile *models.Profile, bestRanking
 			<div class="grid grid-cols-3 gap-8 mt-8 mb-4 mx-auto">
 				<div class="text-center bg-gray-600 p-6 rounded-md shadow-md">
 					<h3 class="text-lg font-bold">Wins</h3>
-					<p class="text-3xl font-extrabold">{  }</p>
+					<p class="text-3xl font-extrabold">{ strconv.Itoa(len(*rankings)) }</p>
 				</div>
 				<div class="text-center bg-gray-600 p-6 rounded-md shadow-md">
 					<h3 class="text-lg font-bold">Best Score</h3>
-					<p class="text-3xl font-extrabold">{  }</p>
+					if len(*rankings) != 0 {
+						<p class="text-3xl font-extrabold">{  }</p>
+					} else {
+						<p class="text-3xl font-extrabold">0</p>
+					}
 				</div>
 				<div class="text-center bg-gray-600 p-6 rounded-md shadow-md">
 					<h3 class="text-lg font-bold">Ranking</h3>
-					<p class="text-3xl font-extrabold">{  }</p>
+					if len(*rankings) != 0 {
+						<p class="text-3xl font-extrabold">{  }</p>
+					} else {
+						<p class="text-3xl font-extrabold">Unranked</p>
+					}
 				</div>
 			</div>
 		</section>
 		<section class="container mx-auto mt-8 p-8 bg-gray-800 rounded-md shadow-lg text-center">
-			<h3 class="text-2xl font-bold mb-4">Top 5 Best Scores</h3>
+			<h3 class="text-2xl font-bold mb-4">Top Scores</h3>
 			<ul class="space-y-4">
-				for idx, ranking := range bestRankings {
-					<li class="bg-purple-700 py-3 px-6 rounded-md flex justify-between items-center shadow-md transition duration-300 transform hover:scale-105">
-						<span class="text-white font-semibold">{ strconv.Itoa(idx) }. Rank: {  } </span>
-						<span class="text-white">Time: { strconv.Itoa(ranking.TimeScore) }</span>
-						<span class="text-white font-semibold">Score: { strconv.Itoa(ranking.PointsScore) }</span>
-					</li>
+				if len(*rankings) != 0 {
+					// We only need to keep the 5 best scores
+					for idx, ranking := range (*rankings)[:5] {
+						<li class="bg-purple-700 py-3 px-6 rounded-md flex justify-between items-center shadow-md transition duration-300 transform hover:scale-105">
+							<span class="text-white font-semibold">{ strconv.Itoa(idx+1) }. Rank: {  } </span>
+							<span class="text-white">Time: { strconv.Itoa(ranking.TimeScore) }</span>
+							<span class="text-white font-semibold">Score: { strconv.Itoa(ranking.PointsScore) }</span>
+						</li>
+					}
+				} else {
+					<div class="bg-gray-600 py-4 px-6 rounded-md shadow-md transition duration-300 transform hover:shadow-xl">
+						<p class="text-white text-lg">Oops! No games have been finished yet.</p>
+					</div>
 				}
 			</ul>
 		</section>

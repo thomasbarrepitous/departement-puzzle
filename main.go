@@ -45,11 +45,11 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 
 	homeHandler := &handlers.HomeHandler{}
 	notFoundHandler := &handlers.NotFoundHandler{}
-	loginHandler := &handlers.LoginHandler{UserStore: store.Users}
+	loginHandler := &handlers.LoginHandler{UserStore: store.Users, ProfileStore: store.Profiles}
 	rankingHandler := &handlers.RankingHandler{RankingStore: store.Rankings}
 	registerHandler := &handlers.RegisterHandler{UserStore: store.Users, ProfileStore: store.Profiles}
 	userHandler := &handlers.UserHandler{UserStore: store.Users}
-	profileHandler := &handlers.ProfileHandler{ProfileStore: store.Profiles}
+	profileHandler := &handlers.ProfileHandler{ProfileStore: store.Profiles, RankingStore: store.Rankings}
 	gameHandler := &handlers.GameHandler{}
 
 	// Non protected routes
@@ -76,7 +76,7 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 
 	// Create subrouter for our protected routes
 	protectedRouter := r.PathPrefix("/").Subrouter()
-	// protectedRouter.Use(utils.JWTVerifyMiddleware)
+	protectedRouter.Use(utils.JWTVerifyMiddleware)
 
 	// Create subrouter for our API routes
 	apiRouter := r.PathPrefix("/api").Subrouter()

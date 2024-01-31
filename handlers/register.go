@@ -42,7 +42,7 @@ func (rh *RegisterHandler) RegisterHandle(w http.ResponseWriter, r *http.Request
 	}
 
 	// Create the profile in the database
-	_, dbErr = rh.ProfileStore.CreateProfile(r.Context(), models.NewProfile(user.ID, user.Username, user.Email))
+	_, dbErr = rh.ProfileStore.CreateProfile(r.Context(), models.NewProfile(user.ID, user.Username, user.Email, "", "", ""))
 	if dbErr != nil {
 		log.Print(dbErr.Error())
 		utils.JSONRespond(w, http.StatusInternalServerError, dbErr)

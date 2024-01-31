@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"departement/components"
 	"departement/models"
@@ -16,7 +17,8 @@ import (
 
 // LoginHandler is the handler for the login page
 type LoginHandler struct {
-	UserStore storage.UserStorage
+	UserStore    storage.UserStorage
+	ProfileStore storage.ProfileStorage
 }
 
 type LoginRequest struct {
@@ -96,8 +98,8 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// Get the user's profile with the access token
-	profile, err := utils.GetGoogleProfile(r.Context(), config, accessToken)
+	// Get the user's googleProfile with the access token
+	googleProfile, err := utils.GetGoogleProfile(r.Context(), config, accessToken)
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -105,19 +107,20 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Check if the user is already in the database
-	user, err := lh.UserStore.GetUserByEmail(r.Context(), profile.Email)
+	user, err := lh.UserStore.GetUserByEmail(r.Context(), googleProfile.Email)
 	if err != nil {
 		// If the user is not in the database, create it
 		if err == sql.ErrNoRows {
 			// Create the user
 			log.Print("User not found, creating it")
-			user, err = lh.UserStore.CreateUser(r.Context(),
-				models.User{
-					Username: profile.Name,
-					Email:    profile.Email,
-					// TODO: Generate a random password
-					Password: "",
-				})
+			user, err = lh.GoogleCreateUser(r.Context(), googleProfile)
+			log.Print(user)
+			if err != nil {
+				log.Print(err.Error())
+
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
 			if err != nil {
 				log.Print(err.Error())
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -132,7 +135,7 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 
 	// Set the JWT token in the HTTPOnly cookie and redirect to the home page
 	lh.setAuthCookie(w, r, user)
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/profile", http.StatusFound)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
@@ -181,4 +184,43 @@ func (lh *LoginHandler) setAuthCookie(w http.ResponseWriter, r *http.Request, us
 			HttpOnly: true,
 		},
 	)
+}
+
+// Handle user creation after Google login
+// This feels so wrong
+func (lh *LoginHandler) GoogleCreateUser(ctx context.Context, profile *utils.GoogleProfile) (models.User, error) {
+	// Create the user in the database
+	user, err := lh.UserStore.CreateUser(ctx,
+		models.NewUser(
+			profile.Name,
+			// TODO: Generate a random password
+			"",
+			profile.Email,
+		),
+	)
+	if err != nil {
+		return user, err
+	}
+
+	// Create the profile in the database
+	_, err = lh.ProfileStore.CreateProfile(ctx,
+		models.NewProfile(
+			user.ID,
+			profile.Name,
+			profile.Email,
+			profile.Picture,
+			"",
+			"",
+		),
+	)
+	if err != nil {
+		// If the  profile creation failed, delete the user
+		if err := lh.UserStore.DeleteUser(ctx, user.ID); err != nil {
+			log.Print(err.Error())
+			return user, err
+		}
+		return user, err
+	}
+
+	return user, nil
 }
