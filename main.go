@@ -98,7 +98,7 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 	r.PathPrefix("/static/").Handler(staticRoute)
 
 	// Game related routes
-	protectedRouter.HandleFunc("/departement", gameHandler.RenderGamePage)
+	protectedRouter.HandleFunc("/play", gameHandler.RenderGamePage)
 
 	return &Router{r}
 }

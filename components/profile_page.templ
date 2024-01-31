@@ -3,11 +3,12 @@ package components
 import (
 	"net/http"
 	"strconv"
+	"fmt"
 	"departement/models"
 )
 
 templ ProfilePageComponent(r *http.Request, profile *models.Profile, rankings *[]models.Ranking) {
-	@BaseHead(profile.Username) {
+	@BaseHead(fmt.Sprintf("%s's Profile", profile.Username)) {
 		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
 		<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
 	}
@@ -15,7 +16,7 @@ templ ProfilePageComponent(r *http.Request, profile *models.Profile, rankings *[
 		<section class="container mx-auto mt-8 p-5 bg-gray-800 rounded-md shadow-lg text-center">
 			<div>
 				<div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-					<img src="/avatar.png" alt="Player Avatar" class="w-14 h-14 rounded-full"/>
+					<img src={ profile.Picture } alt={ fmt.Sprintf("%f's Avatar", profile.Username) } class="w-20 h-20 rounded-full"/>
 				</div>
 				<div>
 					<h2 class="text-3xl font-bold mb-2">{ profile.Username }</h2>

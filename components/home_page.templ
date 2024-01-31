@@ -7,63 +7,43 @@ import (
 templ HomePageComponent(r *http.Request) {
 	@BaseHead("Home Page") {
 		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
-	}
-	<body class="bg-gradient-animate h-screen flex items-center justify-center text-white">
-		<div class="text-center opacity-0" id="content">
-			<h1 class="text-5xl font-bold mb-4">Thomas Barré-Pitous</h1>
-			<p class="text-lg mb-8">Coding without style and fashion since 98'.</p>
-			<a href="/login" class="bg-transparent outline outline-white-800 text-white-800 hover:bg-white hover:text-gray-500 hover:outline-transparent font-bold py-2 px-4 rounded-full inline-block">
-				Login
-			</a>
-			<a href="/departement" class="bg-indigo-500  text-white-800 hover:bg-indigo-800 hover:text-white font-bold py-2 px-4 rounded-full inline-block">
-				Play now
-			</a>
-		</div>
-		<script>
-        // Add the fade-in effect when the content is in view
-        document.addEventListener('DOMContentLoaded', function() {
-            const content = document.getElementById('content');
-            content.style.opacity = 1;
-        });
-    </script>
 		<style>
-        @keyframes gradientShift {
-            0% {
-                background-position: 0% 0%;
-            }
-            25% {
-                background-position: 100% 0%;
-            }
-            50% {
-                background-position: 100% 100%;
-            }
-            75% {
-                background-position: 0% 100%;
-            }
-            100% {
-                background-position: 0% 0%;
-            }
+.hero-gradient {
+            background-image: linear-gradient(to bottom right, #48bb78, #276749);
         }
 
-        .bg-gradient-animate {
-            background: linear-gradient(-45deg, #607D8B, #B0BEC5, #263238, #546E7A, #37474F);
-            background-size: 600% 600%;
-            animation: gradientShift 95s ease infinite;
-        }
-
-        /* Add fade-in animation */
-        #content {
-            animation: fadeIn 2s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+        /* Custom font for headings */
+        .custom-font {
+            font-family: 'Roboto', sans-serif;
         }
     </style>
-	</body>
+	}
+	@BaseBody(r) {
+		<section class="container mx-auto h-screen flex flex-col items-center justify-center">
+			<div class="hero-gradient rounded-lg shadow-lg p-8 text-center">
+				<h1 class="text-4xl font-bold mb-4 custom-font">Test Your Geography Knowledge!</h1>
+				<p class="text-lg mb-6">Challenge yourself with our interactive geography quiz.</p>
+				<a href="/play" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+					Play Now
+				</a>
+			</div>
+			<div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+				<div class="bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+					<img src="/world.png" alt="Diverse Questions" class="w-32 h-32 mx-auto mb-4"/>
+					<h2 class="text-xl font-semibold mb-2 custom-font">Diverse Questions</h2>
+					<p class="text-lg">Explore a wide range of geography topics from countries and capitals to landmarks and landscapes.</p>
+				</div>
+				<div class="bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+					<img src="/interaction.png" alt="Interactive Experience" class="w-32 h-32 mx-auto mb-4"/>
+					<h2 class="text-xl font-semibold mb-2 custom-font">Interactive Experience</h2>
+					<p class="text-lg">Engage in an immersive quiz experience with interactive maps, images, and more.</p>
+				</div>
+				<div class="bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+					<img src="/learning.png" alt="Learn and Have Fun" class="w-32 h-32 mx-auto mb-4"/>
+					<h2 class="text-xl font-semibold mb-2 custom-font">Learn and Have Fun</h2>
+					<p class="text-lg">Enhance your knowledge while enjoying a fun and entertaining quiz game.</p>
+				</div>
+			</div>
+		</section>
+	}
 }
