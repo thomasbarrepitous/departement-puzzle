@@ -50,7 +50,6 @@ templ LoginPageComponent(r *http.Request) {
 					<div class="flex justify-center items-center mt-4">
 						<button
 							type="button"
-							hx-post="/api/auth/github"
 							class="w-12 h-12 bg-black-400 hover:bg-black-500 text-white font-bold rounded-full focus:outline-none focus:shadow-outline-blue active:bg-black-600 mx-2 flex items-center justify-center"
 						>
 							<img src="https://github.com/fluidicon.png" alt="Github Logo" class="w-8 h-8"/>
@@ -65,14 +64,12 @@ templ LoginPageComponent(r *http.Request) {
 						</button>
 						<button
 							type="button"
-							hx-post="/api/auth/linkedin"
 							class="w-12 h-12 bg-white-500 hover:bg-white-600 text-white font-bold rounded-full focus:outline-none focus:shadow-outline-white active:bg-white-800 mx-2 flex items-center justify-center"
 						>
 							<img src="/static/assets/linkedin_logo.png" alt="LinkedIn Logo" class="w-8 h-8"/>
 						</button>
 						<button
 							type="button"
-							hx-post="/api/auth/facebook"
 							class="w-12 h-12 bg-black-400 hover:bg-black-500 text-white font-bold rounded-full focus:outline-none focus:shadow-outline-blue active:bg-black-600 mx-2 flex items-center justify-center"
 						>
 							<img src="/static/assets/X_logo.png" alt="X Logo" class="w-8 h-8"/>

@@ -1,0 +1,67 @@
+package components
+
+import (
+	"net/http"
+)
+
+templ PlayMenuPageComponent(r *http.Request) {
+	@BaseHead("Choose a game!") {
+		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+		<style>
+        .custom-font {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .custom-button {
+            background-color: #4f46e5;
+            color: #ffffff;
+        }
+
+        .custom-button:hover {
+            background-color: #4338ca;
+        }
+    </style>
+	}
+	@BaseBody(r) {
+		<section class="container mx-auto mt-12 text-center">
+			<!-- Title -->
+			<h1 class="text-4xl font-bold mb-8 custom-font text-gray-100">
+				<span class="text-gradient bg-gradient-to-r from-purple-500 to-indigo-500">Choose Your Game</span>
+			</h1>
+			<!-- Search Bar -->
+			<div class="max-w-md mx-auto mb-8">
+				<input
+					type="text"
+					id="searchInput"
+					placeholder="Search for a game..."
+					class="w-full bg-gray-800 text-white border border-gray-700 rounded-md py-2 px-4 focus:outline-none focus:border-purple-500"
+					hx-get="/api/games"
+					hx-trigger="keyup changed delay:500ms"
+					hx-target="#gameGrid"
+				/>
+			</div>
+			<!-- Games -->
+			<div
+				id="gameGrid"
+				class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
+				hx-get="/api/games"
+				hx-trigger="load"
+			>
+				<!-- HTMX will populate this with game cards -->
+			</div>
+		</section>
+		<script>
+        document.addEventListener('htmx:configRequest', function (event) {
+            if (event.detail.target.matches('#searchInput')) {
+                event.detail.headers['Content-Type'] = 'application/json';
+                event.detail.headers['Accept'] = 'application/json';
+            }
+        });
+    </script>
+	}
+}

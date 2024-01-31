@@ -25,8 +25,8 @@ func NewServer(listenAddr string, ctx context.Context, storage *storage.Storage)
 		Server: &http.Server{
 			Addr:         listenAddr,
 			Handler:      utils.Limit(r),
-			WriteTimeout: 15 * time.Second,
-			ReadTimeout:  15 * time.Second,
+			WriteTimeout: 30 * time.Second,
+			ReadTimeout:  30 * time.Second,
 		},
 	}
 }
@@ -51,6 +51,7 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 	userHandler := &handlers.UserHandler{UserStore: store.Users}
 	profileHandler := &handlers.ProfileHandler{ProfileStore: store.Profiles, RankingStore: store.Rankings}
 	gameHandler := &handlers.GameHandler{}
+	playMenuHandler := &handlers.PlayMenuHandler{}
 
 	// Non protected routes
 
@@ -71,6 +72,9 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 	// Registration
 	r.HandleFunc("/api/users", registerHandler.RegisterHandle).Methods("POST")
 	r.HandleFunc("/register", registerHandler.RenderRegisterPage)
+
+	// Play menu
+	r.HandleFunc("/play", playMenuHandler.RenderPlayMenuPage)
 
 	// Protected routes
 
@@ -98,7 +102,7 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 	r.PathPrefix("/static/").Handler(staticRoute)
 
 	// Game related routes
-	protectedRouter.HandleFunc("/play", gameHandler.RenderGamePage)
+	protectedRouter.HandleFunc("/departement", gameHandler.RenderGamePage)
 
 	return &Router{r}
 }
