@@ -75,6 +75,7 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 
 	// Play menu
 	r.HandleFunc("/play", playMenuHandler.RenderPlayMenuPage)
+	r.HandleFunc("/api/games", playMenuHandler.GetGames).Methods("GET")
 
 	// Protected routes
 

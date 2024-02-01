@@ -2,7 +2,25 @@ package components
 
 import (
 	"net/http"
+	"departement/models"
 )
+
+templ GameCard(game models.Game) {
+	<div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 card">
+		<img src={ game.Picture } alt="Game 3" class="w-full h-64 object-cover"/>
+		<div class="p-4">
+			<h2 class="text-xl font-semibold mb-2 custom-font">{ game.Name }</h2>
+			<p class="text-lg mb-4">{ game.Description }</p>
+			<a href={ templ.URL(game.URL) } class="py-2 px-4 rounded-full inline-block transition duration-300 transform hover:scale-105 custom-button">Play Now</a>
+		</div>
+	</div>
+}
+
+templ GameCardComponent(r *http.Request, games *[]models.Game) {
+	for _, game := range *games {
+		@GameCard(game)
+	}
+}
 
 templ PlayMenuPageComponent(r *http.Request) {
 	@BaseHead("Choose a game!") {
@@ -36,13 +54,15 @@ templ PlayMenuPageComponent(r *http.Request) {
 			<!-- Search Bar -->
 			<div class="max-w-md mx-auto mb-8">
 				<input
-					type="text"
+					type="search"
 					id="searchInput"
+					name="search"
 					placeholder="Search for a game..."
 					class="w-full bg-gray-800 text-white border border-gray-700 rounded-md py-2 px-4 focus:outline-none focus:border-purple-500"
 					hx-get="/api/games"
-					hx-trigger="keyup changed delay:500ms"
+					hx-trigger="input changed delay:500ms, search"
 					hx-target="#gameGrid"
+					hx-indicator=".htmx-indicator"
 				/>
 			</div>
 			<!-- Games -->
