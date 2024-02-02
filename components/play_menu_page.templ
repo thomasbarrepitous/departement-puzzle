@@ -6,14 +6,25 @@ import (
 )
 
 templ GameCard(game models.Game) {
-	<div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 card">
-		<img src={ game.Picture } alt="Game 3" class="w-full h-64 object-cover"/>
-		<div class="p-4">
-			<h2 class="text-xl font-semibold mb-2 custom-font">{ game.Name }</h2>
-			<p class="text-lg mb-4">{ game.Description }</p>
-			<a href={ templ.URL(game.URL) } class="py-2 px-4 rounded-full inline-block transition duration-300 transform hover:scale-105 custom-button">Play Now</a>
+	if game.Available == true {
+		<div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 card">
+			<img src={ game.Picture } alt={ game.Name } class="w-full h-64 object-cover"/>
+			<div class="p-4">
+				<h2 class="text-xl font-semibold mb-2 custom-font">{ game.Name }</h2>
+				<p class="text-lg mb-4">{ game.Description }</p>
+				<a href={ templ.URL(game.URL) } class="py-2 px-4 rounded-full inline-block transition duration-300 transform hover:scale-105 custom-button">Play Now</a>
+			</div>
 		</div>
-	</div>
+	} else {
+		<div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transition duration-300 transform hover:scale-105 card">
+			<img src={ game.Picture } alt={ game.Name } class="w-full h-64 object-cover"/>
+			<div class="p-4">
+				<h2 class="text-xl font-semibold mb-2 custom-font">{ game.Name }</h2>
+				<p class="text-lg mb-4">{ game.Description }</p>
+				<a href="#" class="py-2 px-4 rounded-full inline-block transition duration-300 transform hover:scale-105 custom-button cursor-not-allowed">Coming Soon</a>
+			</div>
+		</div>
+	}
 }
 
 templ GameCardComponent(r *http.Request, games *[]models.Game) {

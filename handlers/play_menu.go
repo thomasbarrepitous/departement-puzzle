@@ -14,17 +14,19 @@ func (pmh *PlayMenuHandler) GetGames(w http.ResponseWriter, r *http.Request) {
 	games := []models.Game{
 		{
 			ID:          1,
-			Name:        "Jeu 1",
-			Description: "Description du jeu 1",
+			Name:        "Guess the French departement",
+			Description: "Guess the french departement location by its number and its name!.",
 			URL:         "/departement",
 			Picture:     "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+			Available:   true,
 		},
 		{
 			ID:          2,
-			Name:        "Jeu 2",
-			Description: "Description du jeu 2",
-			URL:         "https://www.google.com",
+			Name:        "Guess the Japanese prefecture",
+			Description: "Guess the japanese prefecture location by its logo and its name!.",
+			URL:         "",
 			Picture:     "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+			Available:   false,
 		},
 	}
 	var filteredGames []models.Game
