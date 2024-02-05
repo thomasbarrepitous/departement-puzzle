@@ -8,6 +8,7 @@ import (
 	"departement/storage"
 	"departement/utils"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -62,7 +63,7 @@ func (lh *LoginHandler) EmailLoginHandle(w http.ResponseWriter, r *http.Request)
 	}
 
 	lh.setAuthCookie(w, r, user)
-	w.Header().Add("HX-Redirect", "/profile")
+	w.Header().Add("HX-Redirect", fmt.Sprintf("/profile/%s", user.Username))
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 
@@ -133,9 +134,9 @@ func (lh *LoginHandler) GoogleCallbackHandle(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	// Set the JWT token in the HTTPOnly cookie and redirect to the home page
+	// Set the JWT token in the HTTPOnly cookie and redirect to the user's profile page
 	lh.setAuthCookie(w, r, user)
-	http.Redirect(w, r, "/profile", http.StatusFound)
+	http.Redirect(w, r, fmt.Sprintf("/profile/%s", user.Username), http.StatusFound)
 	utils.JSONRespond(w, http.StatusOK, map[string]string{})
 }
 

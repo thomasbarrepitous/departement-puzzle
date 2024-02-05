@@ -49,7 +49,7 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 	rankingHandler := &handlers.RankingHandler{RankingStore: store.Rankings}
 	registerHandler := &handlers.RegisterHandler{UserStore: store.Users, ProfileStore: store.Profiles}
 	userHandler := &handlers.UserHandler{UserStore: store.Users}
-	profileHandler := &handlers.ProfileHandler{ProfileStore: store.Profiles, RankingStore: store.Rankings}
+	profileHandler := &handlers.ProfileHandler{ProfileStore: store.Profiles, RankingStore: store.Rankings, UserStore: store.Users}
 	gameHandler := &handlers.GameHandler{}
 	playMenuHandler := &handlers.PlayMenuHandler{}
 
@@ -77,6 +77,9 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 	r.HandleFunc("/play", playMenuHandler.RenderPlayMenuPage)
 	r.HandleFunc("/api/games", playMenuHandler.GetGames).Methods("GET")
 
+	// Profile
+	r.HandleFunc("/profile/{username}", profileHandler.RenderProfilePage)
+
 	// Protected routes
 
 	// Create subrouter for our protected routes
@@ -90,10 +93,6 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 	// Users
 	apiRouter.HandleFunc("/users", userHandler.GetAllUsers).Methods("GET")
 	apiRouter.HandleFunc("/users/{id}", userHandler.GetUserByID).Methods("GET")
-
-	// Profile
-	protectedRouter.HandleFunc("/profile", profileHandler.RenderProfilePage)
-	apiRouter.HandleFunc("/profile/{user_id}", profileHandler.RenderProfilePage)
 
 	// Rankings
 	apiRouter.HandleFunc("/rankings", rankingHandler.GetAllRankings).Methods("GET")

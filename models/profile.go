@@ -3,7 +3,7 @@ package models
 import "github.com/google/uuid"
 
 type Profile struct {
-	ID          uuid.UUID `json:"profile_id"`
+	ID          int       `json:"id"`
 	UserID      uuid.UUID `json:"user_id"`
 	Username    string    `json:"last_name"`
 	Email       string    `json:"email"`

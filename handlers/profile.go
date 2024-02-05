@@ -6,35 +6,39 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
 type ProfileHandler struct {
 	ProfileStore storage.ProfileStorage
 	RankingStore storage.RankingStorage
+	UserStore    storage.UserStorage
 }
 
 func (ph *ProfileHandler) RenderProfilePage(w http.ResponseWriter, r *http.Request) {
+	// Check if authenticated
 	// userID = int(r.Context().Value("user_id").(float64))
 
 	// Get the user ID from the URL
 	vars := mux.Vars(r)
-	userID, err := uuid.Parse(vars["id"])
+	username := vars["username"]
+
+	// Get the user ID from the username
+	user, err := ph.UserStore.GetUserByUsername(r.Context(), username)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Get the profile from the database
-	profile, err := ph.ProfileStore.GetProfileByUserID(r.Context(), userID)
+	profile, err := ph.ProfileStore.GetProfileByUserID(r.Context(), user.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Get the best rankings from the user
-	rankings, err := ph.RankingStore.GetAllRankingsByUserID(r.Context(), userID)
+	rankings, err := ph.RankingStore.GetAllRankingsByUserID(r.Context(), user.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -13,7 +13,7 @@ func (pmh *PlayMenuHandler) GetGames(w http.ResponseWriter, r *http.Request) {
 	searchQuery := r.URL.Query().Get("search")
 	games := []models.Game{
 		{
-			ID:          "1",
+			ID:          1,
 			Name:        "Guess the French departement",
 			Description: "Guess the french departement location by its number and its name!.",
 			URL:         "/departement",
@@ -21,7 +21,7 @@ func (pmh *PlayMenuHandler) GetGames(w http.ResponseWriter, r *http.Request) {
 			Available:   true,
 		},
 		{
-			ID:          "2",
+			ID:          2,
 			Name:        "Guess the Japanese prefecture",
 			Description: "Guess the japanese prefecture location by its logo and its name!.",
 			URL:         "",

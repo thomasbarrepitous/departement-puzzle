@@ -8,14 +8,14 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS rankings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     user_id UUID NOT NULL,
     points_score INT NOT NULL,
     time_score INT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     user_id UUID NOT NULL,
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,

@@ -55,10 +55,10 @@ func (pfs *PostgresProfileStorage) GetAllProfiles(ctx context.Context) ([]models
 
 // CreateProfile creates a new profile in the database
 func (pfs *PostgresProfileStorage) CreateProfile(ctx context.Context, profile models.Profile) (models.Profile, error) {
-	query := "INSERT INTO profiles (id, user_id, username, email, picture, description, country) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id"
-	row := pfs.DB.QueryRow(query, profile.ID, profile.UserID, profile.Username, profile.Email, profile.Picture, profile.Description, profile.Country)
+	query := "INSERT INTO profiles (user_id, username, email, picture, description, country) VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id"
+	row := pfs.DB.QueryRow(query, profile.UserID, profile.Username, profile.Email, profile.Picture, profile.Description, profile.Country)
 
-	err := row.Scan(&profile.ID)
+	err := row.Scan(&profile.UserID)
 	return profile, err
 }
 
