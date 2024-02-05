@@ -93,6 +93,7 @@ func NewRouter(ctx context.Context, store *storage.Storage) *Router {
 
 	// Profile
 	protectedRouter.HandleFunc("/profile", profileHandler.RenderProfilePage)
+	apiRouter.HandleFunc("/profile/{user_id}", profileHandler.RenderProfilePage)
 
 	// Rankings
 	apiRouter.HandleFunc("/rankings", rankingHandler.GetAllRankings).Methods("GET")

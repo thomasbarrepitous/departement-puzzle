@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 	"departement/models"
+
+	"github.com/google/uuid"
 )
 
 // IStorage is an interface that wraps all the storage methods
@@ -42,7 +44,7 @@ type UserStorage interface {
 	GetAllUsers(ctx context.Context) ([]models.User, error)
 
 	// GetUserByID retrieves a user from the database by ID
-	GetUserByID(ctx context.Context, id int) (models.User, error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error)
 
 	// GetUserByEmail retrieves a user from the database by email
 	GetUserByEmail(ctx context.Context, email string) (models.User, error)
@@ -54,10 +56,10 @@ type UserStorage interface {
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 
 	// UpdateUser updates a user in the database
-	UpdateUser(ctx context.Context, id int, user models.User) (models.User, error)
+	UpdateUser(ctx context.Context, id uuid.UUID, user models.User) (models.User, error)
 
 	// DeleteUser deletes a user from the database
-	DeleteUser(ctx context.Context, id int) error
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
 // ProfileStorage is an interface that wraps all the profile storage methods
@@ -66,16 +68,16 @@ type ProfileStorage interface {
 	GetAllProfiles(ctx context.Context) ([]models.Profile, error)
 
 	// GetProfileByUserID retrieves a profile from the database by ID
-	GetProfileByUserID(ctx context.Context, userID int) (models.Profile, error)
+	GetProfileByUserID(ctx context.Context, userID uuid.UUID) (models.Profile, error)
 
 	// CreateProfile creates a new profile in the database
 	CreateProfile(ctx context.Context, profile models.Profile) (models.Profile, error)
 
 	// UpdateProfile updates a profile in the database
-	UpdateProfile(ctx context.Context, id int, profile models.Profile) (models.Profile, error)
+	UpdateProfile(ctx context.Context, id uuid.UUID, profile models.Profile) (models.Profile, error)
 
 	// DeleteProfile deletes a profile from the database
-	DeleteProfile(ctx context.Context, id int) error
+	DeleteProfile(ctx context.Context, id uuid.UUID) error
 }
 
 // RankingStorage is an interface that wraps all the ranking storage methods
@@ -86,7 +88,7 @@ type RankingStorage interface {
 
 	// GetAllRankingsByUserID retrieves all rankings from the database by user ID
 	// If the user has no rankings, an empty slice is returned
-	GetAllRankingsByUserID(ctx context.Context, userID int) ([]models.Ranking, error)
+	GetAllRankingsByUserID(ctx context.Context, userID uuid.UUID) ([]models.Ranking, error)
 
 	// CreateRanking creates a new ranking in the database
 	CreateRanking(ctx context.Context, ranking models.Ranking) (models.Ranking, error)

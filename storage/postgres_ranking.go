@@ -7,6 +7,7 @@ import (
 	"departement/models"
 	"log"
 
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
 
@@ -59,7 +60,7 @@ func (prs *PostgresRankingStorage) GetAllRankings(ctx context.Context) ([]models
 }
 
 // GetAllRankingsByUserID retrieves all rankings from the database by user ID
-func (prs *PostgresRankingStorage) GetAllRankingsByUserID(ctx context.Context, userID int) ([]models.Ranking, error) {
+func (prs *PostgresRankingStorage) GetAllRankingsByUserID(ctx context.Context, userID uuid.UUID) ([]models.Ranking, error) {
 	rows, err := prs.DB.Query("SELECT * FROM rankings WHERE user_id = $1", userID)
 	if err != nil {
 		return nil, err

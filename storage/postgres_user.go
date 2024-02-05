@@ -7,6 +7,7 @@ import (
 	"departement/models"
 	"log"
 
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
 
@@ -51,7 +52,7 @@ func (ps *PostgresUserStorage) GetAllUsers(ctx context.Context) ([]models.User, 
 }
 
 // GetUserByID retrieves a user from the database by ID
-func (ps *PostgresUserStorage) GetUserByID(ctx context.Context, id int) (models.User, error) {
+func (ps *PostgresUserStorage) GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {
 	query := "SELECT id, username, email, password FROM users WHERE id = $1"
 	row := ps.DB.QueryRow(query, id)
 
@@ -90,7 +91,7 @@ func (ps *PostgresUserStorage) CreateUser(ctx context.Context, user models.User)
 }
 
 // UpdateUser updates a user in the database
-func (ps *PostgresUserStorage) UpdateUser(ctx context.Context, id int, user models.User) (models.User, error) {
+func (ps *PostgresUserStorage) UpdateUser(ctx context.Context, id uuid.UUID, user models.User) (models.User, error) {
 	query := "UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4 RETURNING id"
 	row := ps.DB.QueryRow(query, user.Username, user.Email, user.Password, id)
 
@@ -99,7 +100,7 @@ func (ps *PostgresUserStorage) UpdateUser(ctx context.Context, id int, user mode
 }
 
 // DeleteUser deletes a user from the database
-func (ps *PostgresUserStorage) DeleteUser(ctx context.Context, id int) error {
+func (ps *PostgresUserStorage) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	query := "DELETE FROM users WHERE id = $1"
 	_, err := ps.DB.Exec(query, id)
 

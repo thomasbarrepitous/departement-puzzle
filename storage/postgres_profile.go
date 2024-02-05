@@ -7,6 +7,7 @@ import (
 	"departement/models"
 	"log"
 
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
 
@@ -62,7 +63,7 @@ func (pfs *PostgresProfileStorage) CreateProfile(ctx context.Context, profile mo
 }
 
 // GetProfileByID retrieves a profile from the database by ID
-func (pfs *PostgresProfileStorage) GetProfileByUserID(ctx context.Context, userID int) (models.Profile, error) {
+func (pfs *PostgresProfileStorage) GetProfileByUserID(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
 	query := "SELECT id, user_id, username, email, picture, description, country FROM profiles WHERE user_id = $1"
 	row := pfs.DB.QueryRow(query, userID)
 
@@ -72,7 +73,7 @@ func (pfs *PostgresProfileStorage) GetProfileByUserID(ctx context.Context, userI
 }
 
 // UpdateProfile updates a profile in the database
-func (pfs *PostgresProfileStorage) UpdateProfile(ctx context.Context, id int, profile models.Profile) (models.Profile, error) {
+func (pfs *PostgresProfileStorage) UpdateProfile(ctx context.Context, id uuid.UUID, profile models.Profile) (models.Profile, error) {
 	query := "UPDATE profiles SET username = $1, email = $2, picture = $3, description = $4, country = $5 WHERE id = $6 RETURNING id"
 	row := pfs.DB.QueryRow(query, profile.Username, profile.Email, profile.Picture, profile.Description, profile.ID)
 
@@ -81,7 +82,7 @@ func (pfs *PostgresProfileStorage) UpdateProfile(ctx context.Context, id int, pr
 }
 
 // DeleteProfile deletes a profile from the database
-func (pfs *PostgresProfileStorage) DeleteProfile(ctx context.Context, id int) error {
+func (pfs *PostgresProfileStorage) DeleteProfile(ctx context.Context, id uuid.UUID) error {
 	query := "DELETE FROM profiles WHERE id = $1"
 	_, err := pfs.DB.Exec(query, id)
 

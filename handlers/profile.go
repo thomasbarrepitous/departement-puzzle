@@ -5,6 +5,9 @@ import (
 	"departement/storage"
 	"net/http"
 	"sort"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type ProfileHandler struct {
@@ -13,7 +16,15 @@ type ProfileHandler struct {
 }
 
 func (ph *ProfileHandler) RenderProfilePage(w http.ResponseWriter, r *http.Request) {
-	userID := int(r.Context().Value("user_id").(float64))
+	// userID = int(r.Context().Value("user_id").(float64))
+
+	// Get the user ID from the URL
+	vars := mux.Vars(r)
+	userID, err := uuid.Parse(vars["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	// Get the profile from the database
 	profile, err := ph.ProfileStore.GetProfileByUserID(r.Context(), userID)

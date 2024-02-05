@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 )
 
 // Package variable for JWT Secret Key
@@ -18,7 +19,7 @@ type AuthMiddleware struct {
 }
 
 // CreateJWT creates a new JWT token with custom claims
-func CreateJWT(userID int) (string, error) {
+func CreateJWT(userID uuid.UUID) (string, error) {
 	expirationTime := time.Now().Add(15 * time.Minute)
 
 	// Custom claims
